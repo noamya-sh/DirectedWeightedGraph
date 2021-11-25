@@ -1,0 +1,22 @@
+{
+  "EdgeList": {
+    "[Ljava.lang.Integer;@5f184fc6": {
+      "src": 3,
+      "dest": 5,
+      "Weight": 10.0,
+      "Tag": 0
+    }
+  },
+  "NodeList": {
+    "0": {
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "id": 0,
+      "Weight": 0.0,
+      "Tag": 0
+    }
+  }
+}
