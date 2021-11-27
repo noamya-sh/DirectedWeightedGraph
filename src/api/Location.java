@@ -1,7 +1,7 @@
 package api;
 
 public class Location implements GeoLocation {
-    public double x,y,z;
+    double x,y,z;
 
     public Location(){
         this.x=0;

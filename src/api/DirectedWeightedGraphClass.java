@@ -7,18 +7,24 @@ import java.util.Iterator;
 public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
 //    public ArrayList<EdgeData> ed;
 //    public ArrayList<NodeData> nd;
-    public Hashtable<Integer[],EdgeData> EdgeList;
-    public Hashtable<Integer,NodeData> NodeList;
-    public Hashtable<Integer, HashMap<Integer,EdgeData>> naiber;
+    public HashMap<Integer[],EdgeData> EdgeList;
+    public HashMap<Integer,NodeData> NodeList;
+    public HashMap<Integer, HashMap<Integer,EdgeData>> naiber;
 
     public DirectedWeightedGraphClass(){
-        this.EdgeList =new Hashtable<>();
-        this.NodeList =new Hashtable<>();
+        this.EdgeList =new HashMap<>();
+        this.NodeList =new HashMap<>();
     }
-
+    /**Copy constructor of DirectedWeightedGraphClass**/
     public DirectedWeightedGraphClass(DirectedWeightedGraphClass d){
-        this.EdgeList =d.EdgeList;
-        this.NodeList =d.NodeList;
+        HashMap<Integer,NodeData> NodeListCopy =new HashMap<>();
+        HashMap<Integer[],EdgeData> EdgeListCopy =new HashMap<>();
+        for (var entry: NodeList.entrySet())
+            NodeListCopy.put(entry.getKey(),new Node(entry.getValue()));
+        for (var entry: EdgeList.entrySet())
+            EdgeListCopy.put(entry.getKey().clone(),new Edge(entry.getValue()));
+        this.EdgeList =EdgeListCopy;
+        this.NodeList =NodeListCopy;
     }
 
     @Override

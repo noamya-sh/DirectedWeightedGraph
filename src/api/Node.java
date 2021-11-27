@@ -1,11 +1,11 @@
 package api;
 
 public class Node implements NodeData {
-    Location pos;
-    int id;
-    double Weight;
-    String info;
-    int Tag;
+    private Location pos;
+    private int id;
+    private double Weight;
+    private String info;
+    private int Tag;
 
     public Node(){
         this.pos = new Location();
@@ -14,13 +14,14 @@ public class Node implements NodeData {
 //        this.info="";
 //        this.Tag=0;
     }
-
-    public Node(Node n){
-        this.pos =n.pos;
-        this.id =n.id;
-        this.Weight=n.Weight;
-        this.info=n.info;
-        this.Tag=n.Tag;
+    /**Copy constructor
+     * @param n Node copy from it**/
+    public Node(NodeData n){
+        this.pos =new Location(n.getLocation());
+        this.id =n.getKey();
+        this.Weight=n.getWeight();
+        this.info=n.getInfo();
+        this.Tag=n.getTag();
     }
 
     @Override
