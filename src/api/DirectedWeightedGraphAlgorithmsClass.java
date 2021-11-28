@@ -9,15 +9,15 @@ import java.io.IOException;
 import java.util.List;
 
 public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGraphAlgorithms {
-    DirectedWeightedGraphClass d;
+    DirectedWeightedGraphClass graph;
 
     DirectedWeightedGraphAlgorithmsClass(){
-        this.d=new DirectedWeightedGraphClass();
+        this.graph =new DirectedWeightedGraphClass();
     }
 
     @Override
     public String toString() {
-        return "" + d + "";
+        return "" + graph + "";
     }
 
     @Override
@@ -27,31 +27,33 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public DirectedWeightedGraph getGraph() {
-        return this.d;
+        return this.graph;
     }
 
     @Override
     public DirectedWeightedGraph copy() {
-        DirectedWeightedGraphClass DA=new DirectedWeightedGraphClass();
-        DA=d;
+        DirectedWeightedGraphClass DA=new DirectedWeightedGraphClass(graph);
         return DA;
     }
 
 
     @Override
     public boolean isConnected() {
-        for(int i = 0; i<this.d.NodeList.size(); i++){
-            for (int j = 0; j<this.d.NodeList.size(); j++){
-                if(this.shortestPathDist(i,j)==0)
-                    return false;
-            }
-        }
+        for (NodeData n:graph.NodeList.values())
+            if (!((Node) n).isConnect())
+                return false;
+//        for(int i = 0; i<this.graph.NodeList.size(); i++){
+//            for (int j = 0; j<this.graph.NodeList.size(); j++){
+//                if(this.shortestPathDist(i,j)==0)
+//                    return false;
+//            }
+//        }
         return true;
     }
 
     @Override
     public double shortestPathDist(int src, int dest) {
-        int len=this.d.NodeList.size();
+        int len=this.graph.NodeList.size();
         double[][]mat=new double[len][len];
         for(int k=0;k<10;k++){
             for(int i=0;i<10;i++){
@@ -86,12 +88,12 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
         Gson gson=new GsonBuilder().setPrettyPrinting().create();
         try {
             FileWriter fw=new FileWriter(file);
-            fw.write(gson.toJson(this.d));
+            fw.write(gson.toJson(this.graph));
             fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(gson.toJson(this.d));
+        System.out.println(gson.toJson(this.graph));
         return true;
     }
 

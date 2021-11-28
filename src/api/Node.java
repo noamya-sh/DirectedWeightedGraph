@@ -6,6 +6,7 @@ public class Node implements NodeData {
     private double Weight;
     private String info;
     private int Tag;
+    private Boolean connect;
 
     public Node(){
         this.pos = new Location();
@@ -22,6 +23,7 @@ public class Node implements NodeData {
         this.Weight=n.getWeight();
         this.info=n.getInfo();
         this.Tag=n.getTag();
+        //not copy boolean connect flag
     }
 
     @Override
@@ -76,5 +78,11 @@ public class Node implements NodeData {
     @Override
     public void setTag(int t) {
         this.Tag=t;
+    }
+    public void setConnect(Boolean b){
+        this.connect=b;
+    }
+    public Boolean isConnect(){
+        return this.connect;
     }
 }

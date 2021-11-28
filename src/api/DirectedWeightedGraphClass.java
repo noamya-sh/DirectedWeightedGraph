@@ -19,9 +19,9 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
     public DirectedWeightedGraphClass(DirectedWeightedGraphClass d){
         HashMap<Integer,NodeData> NodeListCopy =new HashMap<>();
         HashMap<Integer[],EdgeData> EdgeListCopy =new HashMap<>();
-        for (var entry: NodeList.entrySet())
+        for (var entry: d.NodeList.entrySet())
             NodeListCopy.put(entry.getKey(),new Node(entry.getValue()));
-        for (var entry: EdgeList.entrySet())
+        for (var entry: d.EdgeList.entrySet())
             EdgeListCopy.put(entry.getKey().clone(),new Edge(entry.getValue()));
         this.EdgeList =EdgeListCopy;
         this.NodeList =NodeListCopy;
@@ -52,6 +52,10 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
     @Override
     public void connect(int src, int dest, double w) {
         EdgeList.put(new Integer[]{src,dest},new Edge(src,dest,w));
+        if (NodeList.get(src) instanceof Node && !((Node) NodeList.get(src)).isConnect())
+            ((Node) NodeList.get(src)).setConnect(true);
+        if (NodeList.get(dest) instanceof Node && !((Node) NodeList.get(dest)).isConnect())
+            ((Node) NodeList.get(dest)).setConnect(true);
     }
 
     @Override
