@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGraphAlgorithms {
@@ -86,6 +87,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
     public boolean save(String file) {
         //Gson gson = new Gson();
         Gson gson=new GsonBuilder().setPrettyPrinting().create();
+
         try {
             FileWriter fw=new FileWriter(file);
             fw.write(gson.toJson(this.graph));
@@ -125,10 +127,14 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
         Node n=new Node();
         d.getGraph().addNode(n);
         d.getGraph().connect(3,5,10);
-        //d.save("bbb.json");
+        d.save("bcc.json");
         //System.out.println(d);
-        d.load("G1.json");
-
+//        d.load("G1.json");
+        Iterator it = d.getGraph().edgeIter(6);
+        while(it.hasNext()){
+            Edge g = (Edge) it.next();
+            it.remove();
+        }
         //System.out.println(d.shortestPath(3,7));
 
     }

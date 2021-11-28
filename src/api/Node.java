@@ -1,5 +1,7 @@
 package api;
 
+import java.util.HashMap;
+
 public class Node implements NodeData {
     private Location pos;
     private int id;
@@ -7,6 +9,7 @@ public class Node implements NodeData {
     private String info;
     private int Tag;
     private Boolean connect;
+    private HashMap<Integer,EdgeData> edges;
 
     public Node(){
         this.pos = new Location();
@@ -23,6 +26,8 @@ public class Node implements NodeData {
         this.Weight=n.getWeight();
         this.info=n.getInfo();
         this.Tag=n.getTag();
+        this.connect=((Node) n).isConnect();
+        this.edges=new HashMap<>();
         //not copy boolean connect flag
     }
 
@@ -84,5 +89,8 @@ public class Node implements NodeData {
     }
     public Boolean isConnect(){
         return this.connect;
+    }
+    public HashMap<Integer, EdgeData> getEdges() {
+        return edges;
     }
 }

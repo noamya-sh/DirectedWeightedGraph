@@ -21,8 +21,11 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
         HashMap<Integer[],EdgeData> EdgeListCopy =new HashMap<>();
         for (var entry: d.NodeList.entrySet())
             NodeListCopy.put(entry.getKey(),new Node(entry.getValue()));
-        for (var entry: d.EdgeList.entrySet())
-            EdgeListCopy.put(entry.getKey().clone(),new Edge(entry.getValue()));
+        for (var entry: d.EdgeList.entrySet()) {
+            Edge e = new Edge(entry.getValue());
+            EdgeListCopy.put(entry.getKey().clone(), e);
+            ((Node)NodeList.get(entry.getKey()[0])).getEdges().put(entry.getKey()[1],e);
+        }
         this.EdgeList =EdgeListCopy;
         this.NodeList =NodeListCopy;
     }
@@ -60,7 +63,6 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
 
     @Override
     public Iterator<NodeData> nodeIter() {
-
         return this.NodeList.values().iterator();
     }
 
@@ -71,12 +73,13 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
 
     @Override
     public Iterator<EdgeData> edgeIter(int node_id) {
-        return null;
+        return ((Node) NodeList.get(node_id)).getEdges().values().iterator();
     }
 
     @Override
     public NodeData removeNode(int key) {
         NodeList.remove(key);
+//        EdgeList.remove();
         return NodeList.get(key);
     }
 
