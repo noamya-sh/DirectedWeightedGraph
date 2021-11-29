@@ -40,7 +40,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public boolean isConnected() {
-        for (NodeData n:graph.NodeList.values())
+        for (NodeData n:graph.NodeHash.values())
             if (!((Node) n).isConnect())
                 return false;
 //        for(int i = 0; i<this.graph.NodeList.size(); i++){
@@ -54,7 +54,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public double shortestPathDist(int src, int dest) {
-        int len=this.graph.NodeList.size();
+        int len=this.graph.NodeHash.size();
         double[][]mat=new double[len][len];
         for(int k=0;k<10;k++){
             for(int i=0;i<10;i++){
@@ -122,19 +122,25 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
 
     public static void main(String[] args) {
-        DirectedWeightedGraphAlgorithmsClass d= new DirectedWeightedGraphAlgorithmsClass();
-        Edge e=new Edge(3,5,10);
-        Node n=new Node();
-        d.getGraph().addNode(n);
-        d.getGraph().connect(3,5,10);
-        d.save("bcc.json");
-        //System.out.println(d);
-//        d.load("G1.json");
-        Iterator it = d.getGraph().edgeIter(6);
-        while(it.hasNext()){
-            Edge g = (Edge) it.next();
-            it.remove();
-        }
+//        DirectedWeightedGraphAlgorithmsClass d= new DirectedWeightedGraphAlgorithmsClass();
+//        Edge e=new Edge(3,5,10);
+//        Node n5=new Node(5);
+//        Node n4=new Node(4);
+//        Node n3=new Node(3);
+//        Node n2=new Node(2);
+//        Node n1=new Node(1);
+//        DirectedWeightedGraph g = d.getGraph();
+//        g.addNode(n1);g.addNode(n2);g.addNode(n3);g.addNode(n4);g.addNode(n5);
+//        g.connect(3,5,10);g.connect(1,2,10);g.connect(2,4,10);
+
+//        d.save("bcc.json");
+        System.out.println(5+"-"+6);
+////        d.load("G1.json");
+//        Iterator it = d.getGraph().edgeIter();
+//        while(it.hasNext()){
+//            Edge h = (Edge) it.next();
+//            System.out.println(h);
+//            it.remove();
         //System.out.println(d.shortestPath(3,7));
 
     }

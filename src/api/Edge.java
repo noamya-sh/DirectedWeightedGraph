@@ -72,4 +72,9 @@ public class Edge implements EdgeData {
     public void setTag(int t) {
         this.Tag=t;
     }
+//    public String toString(){
+//        String s="";
+//        s+="src: "+src+" dest: "+dest+" weight: "+getWeight()+" ";
+//        return s;
+//    }
 }

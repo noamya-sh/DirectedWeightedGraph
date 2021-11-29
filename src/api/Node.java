@@ -1,6 +1,8 @@
 package api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Node implements NodeData {
     private Location pos;
@@ -10,6 +12,7 @@ public class Node implements NodeData {
     private int Tag;
     private Boolean connect;
     private HashMap<Integer,EdgeData> edges;
+    private HashMap<Integer,Integer> neighbors;
 
     public Node(){
         this.pos = new Location();
@@ -18,6 +21,18 @@ public class Node implements NodeData {
 //        this.info="";
 //        this.Tag=0;
     }
+    public Node(int id){
+        this.pos = new Location();
+        this.id =id;
+//        this.Weight=0;
+//        this.info="";
+//        this.Tag=0;
+    }
+
+    public HashMap<Integer,Integer> getNeighbors() {
+        return neighbors;
+    }
+
     /**Copy constructor
      * @param n Node copy from it**/
     public Node(NodeData n){
@@ -28,6 +43,7 @@ public class Node implements NodeData {
         this.Tag=n.getTag();
         this.connect=((Node) n).isConnect();
         this.edges=new HashMap<>();
+        this.neighbors =new HashMap<>(((Node) n).getNeighbors());
         //not copy boolean connect flag
     }
 

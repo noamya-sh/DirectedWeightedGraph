@@ -1,106 +1,123 @@
 package api;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.*;
 
 public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
-//    public ArrayList<EdgeData> ed;
-//    public ArrayList<NodeData> nd;
-    public HashMap<Integer[],EdgeData> EdgeList;
-    public HashMap<Integer,NodeData> NodeList;
+    private int MC;
+    public HashMap<String,EdgeData> EdgeHash;
+    public HashMap<Integer,NodeData> NodeHash;
     public HashMap<Integer, HashMap<Integer,EdgeData>> naiber;
 
     public DirectedWeightedGraphClass(){
-        this.EdgeList =new HashMap<>();
-        this.NodeList =new HashMap<>();
+        this.EdgeHash =new HashMap<>();
+        this.NodeHash =new HashMap<>();
+        this.MC=0;
     }
     /**Copy constructor of DirectedWeightedGraphClass**/
     public DirectedWeightedGraphClass(DirectedWeightedGraphClass d){
-        HashMap<Integer,NodeData> NodeListCopy =new HashMap<>();
-        HashMap<Integer[],EdgeData> EdgeListCopy =new HashMap<>();
-        for (var entry: d.NodeList.entrySet())
-            NodeListCopy.put(entry.getKey(),new Node(entry.getValue()));
-        for (var entry: d.EdgeList.entrySet()) {
+        HashMap<Integer,NodeData> NodeHashCopy =new HashMap<>();
+        HashMap<String,EdgeData> EdgeHashCopy =new HashMap<>();
+        for (var entry: d.NodeHash.entrySet())
+            NodeHashCopy.put(entry.getKey(),new Node(entry.getValue()));
+        for (var entry: d.EdgeHash.entrySet()) {
             Edge e = new Edge(entry.getValue());
-            EdgeListCopy.put(entry.getKey().clone(), e);
-            ((Node)NodeList.get(entry.getKey()[0])).getEdges().put(entry.getKey()[1],e);
+            EdgeHashCopy.put(entry.getKey(), e);
+            ((Node) NodeHash.get(entry.getKey())).getEdges().put(e.getDest(),e); //insert to edges (hash) in src Node
+            ((Node) NodeHash.get(e.getDest())).getNeighbors().put(e.src,e.dest); //insert to neighbors list of dest Node
         }
-        this.EdgeList =EdgeListCopy;
-        this.NodeList =NodeListCopy;
+        this.EdgeHash = EdgeHashCopy;
+        this.NodeHash = NodeHashCopy;
+        this.MC=d.MC;
     }
 
     @Override
     public String toString() {
-        return "Edges:" + EdgeList.values() +
-                ", Nodes:" + NodeList.values();
+        return "Edges:" + EdgeHash.values() +
+                ", Nodes:" + NodeHash.values();
     }
 
     @Override
     public NodeData getNode(int key) {
-        return NodeList.get(key);
+        return NodeHash.get(key);
     }
 
     @Override
     public EdgeData getEdge(int src, int dest) {
-
-        return EdgeList.get(new int[]{src, dest});
+        return EdgeHash.get(src+"_"+dest);
     }
 
     @Override
     public void addNode(NodeData n) {
-        NodeList.put(n.getKey(),n);
+        this.MC++;
+        NodeHash.put(n.getKey(),n);
     }
 
     @Override
     public void connect(int src, int dest, double w) {
-        EdgeList.put(new Integer[]{src,dest},new Edge(src,dest,w));
-        if (NodeList.get(src) instanceof Node && !((Node) NodeList.get(src)).isConnect())
-            ((Node) NodeList.get(src)).setConnect(true);
-        if (NodeList.get(dest) instanceof Node && !((Node) NodeList.get(dest)).isConnect())
-            ((Node) NodeList.get(dest)).setConnect(true);
+        Edge e = new Edge(src,dest,w);
+        EdgeHash.put(src+"_"+dest,e);
+        ((Node) NodeHash.get(src)).getEdges().put(dest,e);
+        ((Node) NodeHash.get(dest)).getNeighbors().put(src,dest);
+        this.MC++;
     }
 
     @Override
     public Iterator<NodeData> nodeIter() {
-        return this.NodeList.values().iterator();
+        int test=this.MC;
+        if (nodeIter().hasNext() && test!=this.MC)
+            throw new RuntimeException();
+        return this.NodeHash.values().iterator();
     }
 
     @Override
     public Iterator<EdgeData> edgeIter() {
-        return this.EdgeList.values().iterator();
+        int test=this.MC;
+        if (edgeIter().hasNext() && test!=this.MC)
+            throw new RuntimeException();
+        return EdgeHash.values().iterator();
     }
 
     @Override
     public Iterator<EdgeData> edgeIter(int node_id) {
-        return ((Node) NodeList.get(node_id)).getEdges().values().iterator();
+        int test=this.MC;
+        if (edgeIter(node_id).hasNext() && test!=this.MC)
+            throw new RuntimeException();
+        return ((Node) NodeHash.get(node_id)).getEdges().values().iterator();
     }
 
     @Override
     public NodeData removeNode(int key) {
-        NodeList.remove(key);
-//        EdgeList.remove();
-        return NodeList.get(key);
+        //remove from neighbors of dest edges, and remove from EdgeHash.
+        for (EdgeData e:((Node) NodeHash.get(key)).getEdges().values()){
+            ((Node) NodeHash.get(e.getDest())).getNeighbors().remove(key);
+            EdgeHash.remove(key+"_"+e.getDest());
+        }
+        //remove edges from Nodes that they have edges to this Node
+        for (Integer src:((Node) NodeHash.get(key)).getNeighbors().values())
+            ((Node) NodeHash.get(src)).getEdges().remove(key);
+        this.MC++;
+        return NodeHash.remove(key);
     }
 
     @Override
     public EdgeData removeEdge(int src, int dest) {
-        EdgeList.remove(new int[]{src, dest});
-        return EdgeList.get(new int[]{src, dest});
+        ((Node) NodeHash.get(src)).getEdges().remove(dest);
+        ((Node) NodeHash.get(dest)).getNeighbors().remove(src);
+        return EdgeHash.remove(src+"_"+dest);
     }
 
     @Override
     public int nodeSize() {
-        return NodeList.size();
+        return NodeHash.size();
     }
 
     @Override
     public int edgeSize() {
-        return EdgeList.size();
+        return EdgeHash.size();
     }
 
     @Override
     public int getMC() {
-        return 0;
+        return this.MC;
     }
 }
