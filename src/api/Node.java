@@ -32,7 +32,7 @@ public class Node implements NodeData {
     }
 
     public HashMap<Integer,Integer> getNeighbors() {
-        return neighbors;
+        return this.neighbors;
     }
 
     /**Copy constructor

@@ -33,7 +33,7 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
     @Override
     public String toString() {
         return "Edges:" + EdgeHash.values() +
-                ", Nodes:" + NodeHash.values();
+                ", Nodes:" + NodeHash.values()+" MC =" +MC;
     }
 
     @Override
@@ -63,25 +63,25 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
 
     @Override
     public Iterator<NodeData> nodeIter() {
-        int test=this.MC;
-        if (nodeIter().hasNext() && test!=this.MC)
-            throw new RuntimeException();
+//        int test=this.MC;
+//        if (nodeIter().hasNext() && test!=this.MC)
+//            throw new RuntimeException();
         return this.NodeHash.values().iterator();
     }
 
     @Override
     public Iterator<EdgeData> edgeIter() {
-        int test=this.MC;
-        if (edgeIter().hasNext() && test!=this.MC)
-            throw new RuntimeException();
+//        int test=this.MC;
+//        if (edgeIter().hasNext() && test!=this.MC)
+//            throw new RuntimeException();
         return EdgeHash.values().iterator();
     }
 
     @Override
     public Iterator<EdgeData> edgeIter(int node_id) {
-        int test=this.MC;
-        if (edgeIter(node_id).hasNext() && test!=this.MC)
-            throw new RuntimeException();
+//        int test=this.MC;
+//        if (edgeIter(node_id).hasNext() && test!=this.MC)
+//            throw new RuntimeException();
         return ((Node) NodeHash.get(node_id)).getEdges().values().iterator();
     }
 
@@ -120,4 +120,27 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
     public int getMC() {
         return this.MC;
     }
-}
+
+
+    public static void main(String[] args) {
+        DirectedWeightedGraphClass d=new DirectedWeightedGraphClass();
+        Node a=new Node(0);
+        Node b=new Node(1);
+        Node c=new Node(2);
+        Location l=new Location();
+        l.x=5;
+        l.y=3;
+        b.setLocation(l);
+        d.addNode(a);
+        d.addNode(b);
+        d.addNode(c);
+        d.connect(0,1,4);
+        d.connect(1,2,888);
+        //d.removeEdge(1,2);
+        d.removeNode(1);
+        System.out.println(d);
+        DirectedWeightedGraphAlgorithms dw=new DirectedWeightedGraphAlgorithmsClass();
+        dw.init(d);
+        //dw.save("try");
+    }
+    }
