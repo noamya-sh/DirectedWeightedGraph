@@ -63,26 +63,67 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
 
     @Override
     public Iterator<NodeData> nodeIter() {
-//        int test=this.MC;
-//        if (nodeIter().hasNext() && test!=this.MC)
-//            throw new RuntimeException();
-        return this.NodeHash.values().iterator();
+        return new Iterator<NodeData>() {
+            Iterator<NodeData> it = NodeHash.values().iterator();
+            int test=MC;
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public NodeData next() {
+                if (test!=MC)
+                    throw new RuntimeException("ERROR");
+                return it.next();
+            }
+        };
     }
 
     @Override
     public Iterator<EdgeData> edgeIter() {
+        return new Iterator<EdgeData>() {
+            Iterator<EdgeData> it = EdgeHash.values().iterator();
+            int test=MC;
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public EdgeData next() {
+                if (test!=MC)
+                    throw new RuntimeException("ERROR");
+                return it.next();
+            }
+        };
 //        int test=this.MC;
 //        if (edgeIter().hasNext() && test!=this.MC)
 //            throw new RuntimeException();
-        return EdgeHash.values().iterator();
+//        return EdgeHash.values().iterator();
     }
 
     @Override
     public Iterator<EdgeData> edgeIter(int node_id) {
+        return new Iterator<EdgeData>() {
+            Iterator<EdgeData> it =((Node) NodeHash.get(node_id)).getEdges().values().iterator();
+            int test=MC;
+            @Override
+            public boolean hasNext() {
+                return it.hasNext();
+            }
+
+            @Override
+            public EdgeData next() {
+                if (test!=MC)
+                    throw new RuntimeException("ERROR");
+                return it.next();
+            }
+        };
 //        int test=this.MC;
 //        if (edgeIter(node_id).hasNext() && test!=this.MC)
 //            throw new RuntimeException();
-        return ((Node) NodeHash.get(node_id)).getEdges().values().iterator();
+//        return ((Node) NodeHash.get(node_id)).getEdges().values().iterator();
     }
 
     @Override
@@ -136,6 +177,12 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
         d.addNode(c);
         d.connect(0,1,4);
         d.connect(1,2,888);
+        Iterator<NodeData> it = d.nodeIter();
+        while(it.hasNext()){
+            NodeData n = it.next();
+            if (n.getKey()==1)
+                d.connect(1,0,10);
+        }
         //d.removeEdge(1,2);
         d.removeNode(1);
         System.out.println(d);
@@ -143,4 +190,4 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
         dw.init(d);
         //dw.save("try");
     }
-    }
+}

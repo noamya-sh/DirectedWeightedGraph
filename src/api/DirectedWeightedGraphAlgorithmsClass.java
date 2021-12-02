@@ -43,7 +43,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
     @Override
     public boolean isConnected() {
         for (NodeData n : graph.NodeHash.values())
-            if (!((Node) n).isConnect())
+            if (((Node) n).getEdges().size()==0 && ((Node) n).getNeighbors().size()==0)
                 return false;
 //        for(int i = 0; i<this.graph.NodeList.size(); i++){
 //            for (int j = 0; j<this.graph.NodeList.size(); j++){
@@ -115,8 +115,8 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public NodeData center() {
-//        if(!this.isConnected())
-//            return null;
+        if(!this.isConnected())
+            return null;
         int len = this.graph.NodeHash.size();
         double[][] mat = new double[len][len];
         for (EdgeData e : this.graph.EdgeHash.values()) {

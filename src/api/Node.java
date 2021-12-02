@@ -10,7 +10,6 @@ public class Node implements NodeData {
     private double Weight;
     private String info;
     private int Tag;
-    private Boolean connect;
     private HashMap<Integer,EdgeData> edges;
     private HashMap<Integer,Integer> neighbors;
 
@@ -31,10 +30,6 @@ public class Node implements NodeData {
 //        this.Tag=0;
     }
 
-    public HashMap<Integer,Integer> getNeighbors() {
-        return this.neighbors;
-    }
-
     /**Copy constructor
      * @param n Node copy from it**/
     public Node(NodeData n){
@@ -43,7 +38,6 @@ public class Node implements NodeData {
         this.Weight=n.getWeight();
         this.info=n.getInfo();
         this.Tag=n.getTag();
-        this.connect=((Node) n).isConnect();
         this.edges=new HashMap<>();
         this.neighbors =new HashMap<>(((Node) n).getNeighbors());
         //not copy boolean connect flag
@@ -102,13 +96,12 @@ public class Node implements NodeData {
     public void setTag(int t) {
         this.Tag=t;
     }
-    public void setConnect(Boolean b){
-        this.connect=b;
-    }
-    public Boolean isConnect(){
-        return this.connect;
-    }
+
     public HashMap<Integer, EdgeData> getEdges() {
         return this.edges;
+    }
+
+    public HashMap<Integer,Integer> getNeighbors() {
+        return this.neighbors;
     }
 }
