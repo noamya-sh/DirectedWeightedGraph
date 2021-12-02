@@ -43,6 +43,16 @@ public class Node implements NodeData {
         //not copy boolean connect flag
     }
 
+    public Node(int id, Location l) {
+        this.pos=l;
+        this.id=id;
+        this.edges=new HashMap<Integer,EdgeData>();
+        this.neighbors=new HashMap<Integer,Integer>();
+//        this.Weight=0;
+//        this.info="";
+//        this.Tag=0;
+    }
+
     @Override
     public String toString() {
         return "{pos:" + pos +

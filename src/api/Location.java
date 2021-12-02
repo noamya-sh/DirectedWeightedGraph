@@ -8,7 +8,12 @@ public class Location implements GeoLocation {
         this.y=0;
         this.z=0;
     }
-
+    public Location(String s){
+        String[] sp = s.split(",");
+        this.x=Double.parseDouble(sp[0]);
+        this.y=Double.parseDouble(sp[1]);
+        this.z=Double.parseDouble(sp[2]);
+    }
     public Location(GeoLocation l){
         this.x=l.x();
         this.y=l.y();
@@ -17,10 +22,7 @@ public class Location implements GeoLocation {
 
     @Override
     public String toString() {
-        return "{" + x +
-                ", " + y +
-                ", " + z +
-                '}';
+        return x + "," + y + "," + z;
     }
 
     @Override

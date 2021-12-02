@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -149,45 +150,91 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public boolean save(String file) {
-        //Gson gson = new Gson();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
+        Gson gson = new Gson();
+        GsonBuilder gsonBuildr = new GsonBuilder();
+        JsonSerializer<DirectedWeightedGraphClass> serializer = new JsonSerializer<DirectedWeightedGraphClass>() {
+            @Override
+            public JsonElement serialize(DirectedWeightedGraphClass d, Type type, JsonSerializationContext jsonSerializationContext) {
+                JsonArray Edges = new JsonArray();
+                Iterator<EdgeData> ite = graph.edgeIter();
+                while (ite.hasNext()){
+                    EdgeData e = ite.next();
+                    JsonObject j = new JsonObject();
+                    j.addProperty("src",e.getSrc());
+                    j.addProperty("w",e.getWeight());
+                    j.addProperty("dest",e.getDest());
+                    Edges.add(j);
+                }
+                JsonArray Nodes = new JsonArray();
+                Iterator<NodeData> itn = graph.nodeIter();
+                while (itn.hasNext()){
+                    NodeData n = itn.next();
+                    JsonObject j = new JsonObject();
+                    j.addProperty("pos",n.getLocation().toString());
+                    j.addProperty("id",n.getKey());
+                    Nodes.add(j);
+                }
+                JsonObject json = new JsonObject();
+                json.add("Edges",Edges);
+                json.add("Nodes",Nodes);
+                return json;
+            }
+        };
+        gsonBuildr.registerTypeAdapter(DirectedWeightedGraphClass.class,serializer);
+//        System.out.println(jsonString);
         try {
             FileWriter fw = new FileWriter(file);
-            fw.write(gson.toJson(this.graph));
+            fw.write(gsonBuildr.create().toJson(this.graph));
             fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(gson.toJson(this.graph));
+
         return true;
     }
 
     @Override
     public boolean load(String file) {
         try {
-
             GsonBuilder gsonBuilder = new GsonBuilder();
-            //gsonBuilder.registerTypeAdapter(DirectedWeightedGraphClass.class,)
+            JsonDeserializer<DirectedWeightedGraphClass> deserializer = new JsonDeserializer<DirectedWeightedGraphClass>() {
+                @Override
+                public DirectedWeightedGraphClass deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                    DirectedWeightedGraphClass d = new DirectedWeightedGraphClass();
+                    JsonObject jsonObject= json.getAsJsonObject();
+                    JsonArray n = jsonObject.getAsJsonArray("Nodes");
+                    for (int i = 0; i < n.size(); i++) {
+                        JsonObject t = n.get(i).getAsJsonObject();
+                        Location l = new Location(t.get("pos").getAsString());
+                        Node node = new Node(t.get("id").getAsInt(),l);
+                        d.addNode(node);
+                    }
+                    JsonArray e = jsonObject.getAsJsonArray("Edges");
+                    for (int i = 0; i < e.size(); i++) {
+                        JsonObject t = e.get(i).getAsJsonObject();
+                        d.connect(t.get("src").getAsInt(),t.get("dest").getAsInt(),t.get("w").getAsDouble());
+                    }
+                    return d;
+                }
+            };
+            gsonBuilder.registerTypeAdapter(DirectedWeightedGraphClass.class,deserializer);
             Gson gson = gsonBuilder.create();
             FileReader fr = new FileReader(file);
-
             DirectedWeightedGraphClass DWG;
             DWG = gson.fromJson(fr, DirectedWeightedGraphClass.class);
-            System.out.println(DWG);
+            this.graph = DWG;
+//            System.out.println(DWG);
+            return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
-
-        //System.out.println(DWG);
-        return true;
+        return false;
     }
 
 
     public static void main(String[] args) {
         DirectedWeightedGraphAlgorithmsClass d = new DirectedWeightedGraphAlgorithmsClass();
-        Edge e = new Edge(3, 5, 10);
+//        Edge e = new Edge(3, 5, 10);
         Node n5 = new Node(0);
         Node n4 = new Node(4);
         Node n3 = new Node(3);
@@ -201,18 +248,19 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
         g.addNode(n5);
         g.connect(0, 2, 50);
         g.connect(1, 2, 10);
-        g.connect(3, 1, 20);
-        //g.connect(2,3,70);
+        g.connect(3, 1, 30);
+        g.connect(2,3,70);
 
         d.save("ddd.json");
 
-////        d.load("G1.json");
+//        Boolean b = d.load("src/G1.json");
+//        System.out.println(b);
 //        Iterator it = d.getGraph().edgeIter();
 //        while (it.hasNext()) {
 //            Edge h = (Edge) it.next();
             //System.out.println(h);
             //it.remove();
-            System.out.println(d.center());
+//            System.out.println(d.center());
 
         }
     }
