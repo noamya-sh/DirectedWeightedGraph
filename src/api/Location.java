@@ -14,6 +14,11 @@ public class Location implements GeoLocation {
         this.y=Double.parseDouble(sp[1]);
         this.z=Double.parseDouble(sp[2]);
     }
+    public Location(int x,int y){
+        this.x=x;
+        this.y=y;
+        this.z=0;
+    }
     public Location(GeoLocation l){
         this.x=l.x();
         this.y=l.y();

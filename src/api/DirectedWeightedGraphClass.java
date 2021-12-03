@@ -97,10 +97,6 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
                 return it.next();
             }
         };
-//        int test=this.MC;
-//        if (edgeIter().hasNext() && test!=this.MC)
-//            throw new RuntimeException();
-//        return EdgeHash.values().iterator();
     }
 
     @Override
@@ -120,10 +116,6 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
                 return it.next();
             }
         };
-//        int test=this.MC;
-//        if (edgeIter(node_id).hasNext() && test!=this.MC)
-//            throw new RuntimeException();
-//        return ((Node) NodeHash.get(node_id)).getEdges().values().iterator();
     }
 
     @Override

@@ -7,10 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGraphAlgorithms {
     DirectedWeightedGraphClass graph;
@@ -113,7 +110,24 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
     }
 
 
+    private double[][] matShortPath(){
+        int len = this.graph.NodeHash.size();
+        double[][] mat = new double[len][len];
+        for (EdgeData e : this.graph.EdgeHash.values()) {
+            mat[e.getSrc()][e.getDest()] = e.getWeight();
+        }
+        for (int k = 0; k < mat.length; k++) {
+            for (int i = 0; i < mat.length; i++) {
+                for (int j = 0; j < mat.length; j++) {
+                    if (mat[i][k] != 0 && mat[k][j] != 0) {
+                        mat[i][j] = mini(mat[i][j], mat[i][k] + mat[k][j]);
 
+                    }
+                }
+            }
+        }
+        return mat;
+    }
     @Override
     public NodeData center() {
         if(!this.isConnected())
@@ -145,6 +159,19 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public List<NodeData> tsp(List<NodeData> cities) {
+        //if is connect
+        double[][] mat = matShortPath();
+        Queue<NodeData> q = new LinkedList<>();
+        for (NodeData n:cities) {
+            n.setTag(0);
+            q.add(n);
+        }
+        NodeData n = q.poll();
+        while (!q.isEmpty()){
+            NodeData u = q.poll();
+
+        }
+
         return null;
     }
 
@@ -251,8 +278,8 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
         g.connect(3, 1, 30);
         g.connect(2,3,70);
 
-        d.save("ddd.json");
-
+        d.load("output.json");
+        System.out.println(d.graph);
 //        Boolean b = d.load("src/G1.json");
 //        System.out.println(b);
 //        Iterator it = d.getGraph().edgeIter();
