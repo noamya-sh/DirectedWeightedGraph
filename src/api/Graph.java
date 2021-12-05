@@ -2,19 +2,19 @@ package api;
 
 import java.util.*;
 
-public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
+public class Graph implements  DirectedWeightedGraph{
     private int MC;
     public HashMap<String,EdgeData> EdgeHash;
     public HashMap<Integer,NodeData> NodeHash;
     public HashMap<Integer, HashMap<Integer,EdgeData>> naiber;
 
-    public DirectedWeightedGraphClass(){
+    public Graph(){
         this.EdgeHash =new HashMap<>();
         this.NodeHash =new HashMap<>();
         this.MC=0;
     }
     /**Copy constructor of DirectedWeightedGraphClass**/
-    public DirectedWeightedGraphClass(DirectedWeightedGraphClass d){
+    public Graph(Graph d){
         HashMap<Integer,NodeData> NodeHashCopy =new HashMap<>();
         HashMap<String,EdgeData> EdgeHashCopy =new HashMap<>();
         for (var entry: d.NodeHash.entrySet())
@@ -27,7 +27,7 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
         }
         this.EdgeHash = EdgeHashCopy;
         this.NodeHash = NodeHashCopy;
-        this.MC=d.MC;
+        this.MC=0;
     }
 
     @Override
@@ -136,6 +136,7 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
     public EdgeData removeEdge(int src, int dest) {
         ((Node) NodeHash.get(src)).getEdges().remove(dest);
         ((Node) NodeHash.get(dest)).getNeighbors().remove(src);
+        this.MC++;
         return EdgeHash.remove(src+"_"+dest);
     }
 
@@ -156,7 +157,7 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
 
 
     public static void main(String[] args) {
-        DirectedWeightedGraphClass d=new DirectedWeightedGraphClass();
+        Graph d=new Graph();
         Node a=new Node(0);
         Node b=new Node(1);
         Node c=new Node(2);
@@ -178,7 +179,7 @@ public class DirectedWeightedGraphClass implements  DirectedWeightedGraph{
         //d.removeEdge(1,2);
         d.removeNode(1);
         System.out.println(d);
-        DirectedWeightedGraphAlgorithms dw=new DirectedWeightedGraphAlgorithmsClass();
+        DirectedWeightedGraphAlgorithms dw=new GraphAlgo();
         dw.init(d);
         //dw.save("try");
     }

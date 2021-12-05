@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGraphAlgorithms {
-    DirectedWeightedGraphClass graph;
+public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
+    Graph graph;
 
-    DirectedWeightedGraphAlgorithmsClass() {
-        this.graph = new DirectedWeightedGraphClass();
+    GraphAlgo() {
+        this.graph = new Graph();
     }
 
     @Override
@@ -23,7 +23,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public void init(DirectedWeightedGraph g) {
-        this.graph = (DirectedWeightedGraphClass) g;
+        this.graph = (Graph) g;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public DirectedWeightedGraph copy() {
-        DirectedWeightedGraphClass DA = new DirectedWeightedGraphClass(graph);
+        Graph DA = new Graph(new Graph(graph));
         return DA;
     }
 
@@ -98,18 +98,63 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
                             l[i][j] = new LinkedList<>();
                             l[i][j].add(this.graph.NodeHash.get(i));
                             l[i][j].add(this.graph.NodeHash.get(j));
-                    }
-
-                        int x=l[i][j].size();
-                        l[i][j].add(x-1,this.graph.NodeHash.get(k));
+                        }
+                        if (mat[i][j] == (mat[i][k] + mat[k][j])){
+                            int x=l[i][j].size();
+                            l[i][j].add(x-1,this.graph.NodeHash.get(k));
+                        }
                     }
                 }
             }
         }
         return l[src][dest];
     }
-
-
+//    private List<NodeData>[][] matListShortPath(){
+//
+//    }
+    public List<NodeData> dik(int src, int dest){
+        HashMap<Integer,NodeData> q = new HashMap<>();
+        double[] dist = new double[this.graph.NodeHash.size()];
+        NodeData[] prev = new NodeData[this.graph.NodeHash.size()];
+        for (NodeData n:graph.NodeHash.values()){
+            int ind = n.getKey();
+            dist[ind] = Integer.MAX_VALUE;
+            prev[ind] = null;
+            q.put(ind,n);
+        }
+        dist[src]=0;
+        while (!q.isEmpty()){
+            double min = Integer.MAX_VALUE; NodeData u =null;
+            for (NodeData n: q.values())
+                if (dist[n.getKey()]<min){
+                    min=dist[n.getKey()];
+                    u=n;
+                }
+            q.remove(u.getKey());
+            if (u.getKey() == dest){
+                List<NodeData> l = new LinkedList<>();
+                if (prev[u.getKey()]!=null || u.getKey()==src)
+                    while (prev[u.getKey()]!=null){
+                        l.add(0,u);
+                        u = prev[u.getKey()];
+                    }
+                l.add(0,graph.NodeHash.get(src));
+                return l;
+            }
+            Iterator<EdgeData> it = graph.edgeIter(u.getKey());
+            while (it.hasNext()){
+                Edge e = (Edge) it.next();
+                if (q.containsKey(e.getDest())){
+                    double t = dist[u.getKey()]+e.getWeight();
+                    if (t < dist[e.getDest()]){
+                        dist[e.getDest()] = t;
+                        prev[e.getDest()] = u;
+                    }
+                }
+            }
+        }
+        return null;//dist[dest];
+    }
     private double[][] matShortPath(){
         int len = this.graph.NodeHash.size();
         double[][] mat = new double[len][len];
@@ -132,20 +177,8 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
     public NodeData center() {
         if(!this.isConnected())
             return null;
-        int len = this.graph.NodeHash.size();
-        double[][] mat = new double[len][len];
-        for (EdgeData e : this.graph.EdgeHash.values()) {
-            mat[e.getSrc()][e.getDest()] = e.getWeight();
-        }
-        for (int k = 0; k < mat.length; k++) {
-            for (int i = 0; i < mat.length; i++) {
-                for (int j = 0; j < mat.length; j++) {
-                    if (mat[i][k] != 0 && mat[k][j] != 0) {
-                        mat[i][j] = mini(mat[i][j], mat[i][k] + mat[k][j]);
-                    }
-                }
-            }
-        }double min=Integer.MAX_VALUE;
+        double[][] mat = matShortPath();
+        double min=Integer.MAX_VALUE;
         int ans=-1;
         for (int i = 0; i < mat.length; i++) {
             double temp = Arrays.stream(mat[i]).max().getAsDouble();
@@ -159,17 +192,28 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public List<NodeData> tsp(List<NodeData> cities) {
-        //if is connect
+        //add option if is not connect
+        if (cities.size()==0)
+            return null;
+
         double[][] mat = matShortPath();
-        Queue<NodeData> q = new LinkedList<>();
+        List<NodeData> ans = new LinkedList<>();
+        List<NodeData> temp = new ArrayList<>(cities);
+        ans.add(temp.remove(0));
+        while (temp.size()>=1){
+            int id = ans.get(ans.size()-1).getKey();
+            NodeData n = null; double min=Integer.MAX_VALUE;
+            for(NodeData t : temp){
+                if (mat[id][t.getKey()]<min){
+                    min = mat[id][t.getKey()];
+                    n = t ;
+                }
+            }
+            ans.add(n);
+            temp.remove(n);
+        }
         for (NodeData n:cities) {
             n.setTag(0);
-            q.add(n);
-        }
-        NodeData n = q.poll();
-        while (!q.isEmpty()){
-            NodeData u = q.poll();
-
         }
 
         return null;
@@ -177,11 +221,10 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
     @Override
     public boolean save(String file) {
-        Gson gson = new Gson();
         GsonBuilder gsonBuildr = new GsonBuilder();
-        JsonSerializer<DirectedWeightedGraphClass> serializer = new JsonSerializer<DirectedWeightedGraphClass>() {
+        JsonSerializer<Graph> serializer = new JsonSerializer<Graph>() {
             @Override
-            public JsonElement serialize(DirectedWeightedGraphClass d, Type type, JsonSerializationContext jsonSerializationContext) {
+            public JsonElement serialize(Graph d, Type type, JsonSerializationContext jsonSerializationContext) {
                 JsonArray Edges = new JsonArray();
                 Iterator<EdgeData> ite = graph.edgeIter();
                 while (ite.hasNext()){
@@ -207,7 +250,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
                 return json;
             }
         };
-        gsonBuildr.registerTypeAdapter(DirectedWeightedGraphClass.class,serializer);
+        gsonBuildr.registerTypeAdapter(Graph.class,serializer);
 //        System.out.println(jsonString);
         try {
             FileWriter fw = new FileWriter(file);
@@ -224,10 +267,10 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
     public boolean load(String file) {
         try {
             GsonBuilder gsonBuilder = new GsonBuilder();
-            JsonDeserializer<DirectedWeightedGraphClass> deserializer = new JsonDeserializer<DirectedWeightedGraphClass>() {
+            JsonDeserializer<Graph> deserializer = new JsonDeserializer<Graph>() {
                 @Override
-                public DirectedWeightedGraphClass deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                    DirectedWeightedGraphClass d = new DirectedWeightedGraphClass();
+                public Graph deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                    Graph d = new Graph();
                     JsonObject jsonObject= json.getAsJsonObject();
                     JsonArray n = jsonObject.getAsJsonArray("Nodes");
                     for (int i = 0; i < n.size(); i++) {
@@ -244,11 +287,11 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
                     return d;
                 }
             };
-            gsonBuilder.registerTypeAdapter(DirectedWeightedGraphClass.class,deserializer);
+            gsonBuilder.registerTypeAdapter(Graph.class,deserializer);
             Gson gson = gsonBuilder.create();
             FileReader fr = new FileReader(file);
-            DirectedWeightedGraphClass DWG;
-            DWG = gson.fromJson(fr, DirectedWeightedGraphClass.class);
+            Graph DWG;
+            DWG = gson.fromJson(fr, Graph.class);
             this.graph = DWG;
 //            System.out.println(DWG);
             return true;
@@ -260,7 +303,7 @@ public class DirectedWeightedGraphAlgorithmsClass implements DirectedWeightedGra
 
 
     public static void main(String[] args) {
-        DirectedWeightedGraphAlgorithmsClass d = new DirectedWeightedGraphAlgorithmsClass();
+        GraphAlgo d = new GraphAlgo();
 //        Edge e = new Edge(3, 5, 10);
         Node n5 = new Node(0);
         Node n4 = new Node(4);
