@@ -2,7 +2,7 @@ package api;
 
 import java.util.*;
 
-public class Graph implements  DirectedWeightedGraph{
+public class Graph implements DirectedWeightedGraph{
     private int MC;
     public HashMap<String,EdgeData> EdgeHash;
     public HashMap<Integer,NodeData> NodeHash;

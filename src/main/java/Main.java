@@ -1,10 +1,7 @@
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 
 public class Main {
@@ -21,11 +18,11 @@ public class Main {
 
         PaintPanel paintPanel = new PaintPanel(Main.WIDTH,(Main.HEIGHT * 3) / 4);
         paintPanel.setPreferredSize(new Dimension(Main.WIDTH, (Main.HEIGHT * 3) / 4));
-        paintPanel.setBackground(Color.BLACK);
+        paintPanel.setBackground(new Color(51, 25, 0));
         mainFrame.add(paintPanel, BorderLayout.CENTER);
 
-        JLabel title = new JLabel("Noamya's Paint Program", JLabel.CENTER);
-        title.setFont(new Font("Arial", Font.PLAIN, 32));
+        JLabel title = new JLabel("Directed Weighted Graph", JLabel.CENTER);
+        title.setFont(new Font("Ink Free", Font.PLAIN, 32));
         title.setPreferredSize(new Dimension(Main.WIDTH / 2, 100));
         mainFrame.add(title, BorderLayout.PAGE_START);
 
@@ -34,8 +31,7 @@ public class Main {
 
         JDialog creditsDialog = new JDialog(mainFrame);
         creditsDialog.setSize(200, 200);
-        JLabel creditsTxt = new JLabel(
-                "<html><p>those are the credits if you want to see more visit my github account</p></html>");
+        JLabel creditsTxt = new JLabel("<html><p><B>Noamya & Eitan</B></p></html>");
         creditsDialog.add(creditsTxt, BorderLayout.PAGE_START);
         creditsBtn.addMouseListener(new MouseInputAdapter() {
 
