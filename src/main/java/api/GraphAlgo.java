@@ -12,7 +12,7 @@ import java.util.*;
 public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
     Graph graph;
 
-    GraphAlgo() {
+    public GraphAlgo() {
         this.graph = new Graph();
     }
 

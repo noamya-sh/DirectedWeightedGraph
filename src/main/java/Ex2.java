@@ -1,5 +1,10 @@
 import api.DirectedWeightedGraph;
 import api.DirectedWeightedGraphAlgorithms;
+import api.EdgeData;
+import api.GraphAlgo;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * This class is the main class for Ex2 - your implementation will be tested using this class.
@@ -13,8 +18,9 @@ public class Ex2 {
     public static DirectedWeightedGraph getGrapg(String json_file) {
         DirectedWeightedGraph ans = null;
         // ****** Add your code here ******
-        //
-        // ********************************
+        DirectedWeightedGraphAlgorithms da = new GraphAlgo();
+        da.load(json_file);
+        ans = da.getGraph();
         return ans;
     }
     /**
@@ -39,5 +45,12 @@ public class Ex2 {
         // ****** Add your code here ******
         //
         // ********************************
+        ArrayList<EdgeData> e = new ArrayList<>();
+        e.sort(new Comparator<EdgeData>() {
+            @Override
+            public int compare(EdgeData o1, EdgeData o2) {
+                return 0;
+            }
+        });
     }
 }

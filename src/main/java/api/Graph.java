@@ -6,7 +6,6 @@ public class Graph implements  DirectedWeightedGraph{
     private int MC;
     public HashMap<String,EdgeData> EdgeHash;
     public HashMap<Integer,NodeData> NodeHash;
-    public HashMap<Integer, HashMap<Integer,EdgeData>> naiber;
 
     public Graph(){
         this.EdgeHash =new HashMap<>();
@@ -201,7 +200,9 @@ public class Graph implements  DirectedWeightedGraph{
         d.addNode(c);
         d.connect(0,1,4);
         d.connect(0,2,4);
-        d.connect(1,2,888);
+        d.connect(1,2,6);
+        d.connect(1,0,5);
+        d.connect(2,1,4);
         Iterator<EdgeData> it = d.edgeIter(0);
         while(it.hasNext()){
             EdgeData n = it.next();
