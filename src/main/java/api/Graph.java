@@ -118,6 +118,10 @@ public class Graph implements DirectedWeightedGraph{
                 ((Node)NodeHash.get(e.getDest())).getNeighbors().remove(e.getSrc());
                 it.remove();
             }
+//            @Override
+//            public void forEachRemaining(){
+//
+//            }
         };
     }
 
@@ -203,15 +207,16 @@ public class Graph implements DirectedWeightedGraph{
         d.connect(1,2,6);
         d.connect(1,0,5);
         d.connect(2,1,4);
-        Iterator<EdgeData> it = d.edgeIter(0);
-        while(it.hasNext()){
-            EdgeData n = it.next();
-            if (n.getDest()==1)
-                it.remove();
-        }
-        System.out.println(((Node)d.NodeHash.get(0)).getEdges().values());
-        System.out.println(((Node)d.NodeHash.get(1)).getNeighbors());
-        System.out.println(d.EdgeHash);
+        Iterator<NodeData> it = d.nodeIter();
+        it.forEachRemaining(System.out::println);
+//        while(it.hasNext()){
+//            EdgeData n = it.next();
+//            if (n.getDest()==1)
+//                it.remove();
+//        }
+//        System.out.println(((Node)d.NodeHash.get(0)).getEdges().values());
+//        System.out.println(((Node)d.NodeHash.get(1)).getNeighbors());
+//        System.out.println(d.EdgeHash);
         //d.removeEdge(1,2);
 //        d.removeNode(1);
 //        System.out.println(d);

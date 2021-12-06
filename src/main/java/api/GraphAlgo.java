@@ -33,22 +33,44 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
 
     @Override
     public DirectedWeightedGraph copy() {
-        Graph DA = new Graph(new Graph(graph));
+        Graph DA = new Graph(graph);
         return DA;
     }
 
-
+    private HashMap<Integer,Boolean> dfs(Graph g){
+        HashMap<Integer,Boolean> test = new HashMap<>();
+        Iterator<NodeData> it = g.nodeIter();
+        it.forEachRemaining(n->test.put(n.getKey(),false));
+        int firstID = test.keySet().stream().findFirst().get();
+        test.replace(firstID,true);
+        Queue<NodeData> q = new LinkedList<>();
+        q.add(g.NodeHash.get(firstID));
+        while (!q.isEmpty()){
+            Node n = (Node)q.poll();
+            Iterator<EdgeData> i = g.edgeIter(n.getKey());
+            while (i.hasNext()){
+                EdgeData e = i.next();
+                if (test.get(e.getDest())==true)
+                    continue;
+                test.replace(e.getDest(),true);
+                q.add(g.NodeHash.get(e.getDest()));
+            }
+        }
+        return test;
+    }
     @Override
     public boolean isConnected() {
-        for (NodeData n : graph.NodeHash.values())
-            if (((Node) n).getEdges().size()==0 && ((Node) n).getNeighbors().size()==0)
-                return false;
-//        for(int i = 0; i<this.graph.NodeList.size(); i++){
-//            for (int j = 0; j<this.graph.NodeList.size(); j++){
-//                if(this.shortestPathDist(i,j)==0)
-//                    return false;
-//            }
-//        }
+        HashMap<Integer,Boolean> d = dfs(graph);
+        for (Boolean b:d.values()) if (b==false) return false;
+        //create transfom of this graph, invert each edge..
+        Graph copy = new Graph();
+        for (NodeData n : graph.NodeHash.values()) copy.NodeHash.put(n.getKey(),new Node(n.getKey()));
+        for (EdgeData e : graph.EdgeHash.values()){
+            int dest = e.getSrc(), src = e.getDest();
+            ((Node) copy.NodeHash.get(src)).getEdges().put(dest,new Edge(src,dest,e.getWeight()));
+        }
+        HashMap<Integer,Boolean> r = dfs(copy);
+        for (Boolean b:r.values()) if (b==false) return false;
         return true;
     }
 
@@ -112,7 +134,7 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
 //    private List<NodeData>[][] matListShortPath(){
 //
 //    }
-    public List<NodeData> dik(int src, int dest){
+    public List<NodeData> dij(int src, int dest){
         HashMap<Integer,NodeData> q = new HashMap<>();
         double[] dist = new double[this.graph.NodeHash.size()];
         NodeData[] prev = new NodeData[this.graph.NodeHash.size()];
@@ -319,10 +341,11 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
         g.connect(0, 2, 50);
         g.connect(1, 2, 10);
         g.connect(3, 1, 30);
+//        g.connect(2, 0, 30);
         g.connect(2,3,70);
 
-        d.load("output.json");
-        System.out.println(d.graph);
+//        d.load("output.json");
+        System.out.println(d.isConnected());
 //        Boolean b = d.load("src/G1.json");
 //        System.out.println(b);
 //        Iterator it = d.getGraph().edgeIter();
