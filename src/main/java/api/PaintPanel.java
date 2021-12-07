@@ -1,3 +1,5 @@
+package api;
+
 import api.*;
 
 import java.awt.*;
@@ -14,19 +16,20 @@ import javax.swing.event.MouseInputListener;
 public class PaintPanel extends JPanel implements MouseInputListener {
     DirectedWeightedGraphAlgorithms dg;
     HashMap<Integer,Point2D> l;
-    int w,h;
+    int w=1280,h=720;
 
     public int brushSize = 10;
     private int mouseX = -1;
     private int mouseY = -1;
     private boolean mousePressed = false;
 
-    public PaintPanel(int width,int height) {
+    public PaintPanel(String s) {
         super();
+        this.setBackground(Color.BLUE);
         this.l = new HashMap<>();
         this.dg = new GraphAlgo();
-        this.h=height;this.w=width;
-        dg.load("bbb.json");
+        //this.h=height;this.w=width;
+        dg.load(s);
         Iterator<NodeData> it = dg.getGraph().nodeIter();
         while (it.hasNext()){
             NodeData n = it.next();
@@ -83,6 +86,7 @@ public class PaintPanel extends JPanel implements MouseInputListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         double maxx=Integer.MIN_VALUE,minx=Integer.MAX_VALUE;
         double maxy=Integer.MIN_VALUE,miny=Integer.MAX_VALUE;
         for (Point2D p : l.values()){
@@ -101,6 +105,7 @@ public class PaintPanel extends JPanel implements MouseInputListener {
             g.setColor(new Color(189, 255, 102));
             p.setLocation(cal(maxx,minx,p.getX(),this.w),cal(maxy,miny,p.getY(),this.h));
             g.fillOval((int)p.getX()-10,(int)p.getY()-10,10,10);
+            //g.drawString(Integer.toString(l.get() ),(int)p.getX(),(int)p.getY());
         }
         Iterator<EdgeData> it = dg.getGraph().edgeIter();
         while(it.hasNext()){
@@ -120,13 +125,7 @@ public class PaintPanel extends JPanel implements MouseInputListener {
             g.setColor(new Color(153, 204, 255));
             g.drawLine(x1,y1,x2,y2);
         }
-//        int red = (int) (Math.random() * 255);
-//        int green = (int) (Math.random() * 255);
-//        int blue = (int) (Math.random() * 255);
-//        g.setColor(new Color(red, green, blue));
-//        if (this.mousePressed) {
-////            g.fillRect(this.mouseX, this.mouseY, this.brushSize * 2, this.brushSize * 2);
-//            g.fillOval(this.mouseX, this.mouseY, this.brushSize * 2, this.brushSize * 2);
+
 //        }
     }
 
