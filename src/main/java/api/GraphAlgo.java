@@ -74,171 +74,66 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
         return true;
     }
 
-    public double mini(double i, double j){
-        if(i<j && i!=0)
-            return i;
-        return j;
-    }
     @Override
     public double shortestPathDist(int src, int dest) {
-        int len = this.graph.NodeHash.size();
-        double[][] mat = new double[len][len];
-        for (EdgeData e : this.graph.EdgeHash.values()) {
-            mat[e.getSrc()][e.getDest()] = e.getWeight();
-        }
-        for (int k = 0; k < mat.length; k++) {
-            for (int i = 0; i < mat.length; i++) {
-                for (int j = 0; j < mat.length; j++) {
-                    if (mat[i][k] != 0 && mat[k][j] != 0) {
-                        mat[i][j] = mini(mat[i][j], mat[i][k] + mat[k][j]);
-
-                    }
-                }
-            }
-        }
-        return mat[src][dest];
+        Dijkstra d = new Dijkstra(this.graph);
+        return d.getPathDist(src,dest);
     }
 
     @Override
     public List<NodeData> shortestPath(int src, int dest) {
-        int len = this.graph.NodeHash.size();
-        List<NodeData> [][]l=new List[len][len];
-
-        double[][] mat = new double[len][len];
-        for (EdgeData e : this.graph.EdgeHash.values()) {
-            mat[e.getSrc()][e.getDest()] = e.getWeight();
-            l[e.getSrc()][e.getDest()]=new LinkedList<>();
-            l[e.getSrc()][e.getDest()].add(this.graph.NodeHash.get(e.getSrc()));
-            l[e.getSrc()][e.getDest()].add(this.graph.NodeHash.get(e.getDest()));
-        }
-        for (int k = 0; k < mat.length; k++) {
-            for (int i = 0; i < mat.length; i++) {
-                for (int j = 0; j < mat.length; j++) {
-                    if (mat[i][k] != 0 && mat[k][j] != 0 ) {
-                        mat[i][j] = mini(mat[i][j], mat[i][k] + mat[k][j]);
-                        if (l[i][j] == null){
-                            l[i][j] = new LinkedList<>();
-                            l[i][j].add(this.graph.NodeHash.get(i));
-                            l[i][j].add(this.graph.NodeHash.get(j));
-                        }
-                        if (mat[i][j] == (mat[i][k] + mat[k][j])){
-                            int x=l[i][j].size();
-                            l[i][j].add(x-1,this.graph.NodeHash.get(k));
-                        }
-                    }
-                }
-            }
-        }
-        return l[src][dest];
-    }
-//    private List<NodeData>[][] matListShortPath(){
-//
-//    }
-    public List<NodeData> dij(int src, int dest){
-        HashMap<Integer,NodeData> q = new HashMap<>();
-        double[] dist = new double[this.graph.NodeHash.size()];
-        NodeData[] prev = new NodeData[this.graph.NodeHash.size()];
-        for (NodeData n:graph.NodeHash.values()){
-            int ind = n.getKey();
-            dist[ind] = Integer.MAX_VALUE;
-            prev[ind] = null;
-            q.put(ind,n);
-        }
-        dist[src]=0;
-        while (!q.isEmpty()){
-            double min = Integer.MAX_VALUE; NodeData u =null;
-            for (NodeData n: q.values())
-                if (dist[n.getKey()]<min){
-                    min=dist[n.getKey()];
-                    u=n;
-                }
-            q.remove(u.getKey());
-            if (u.getKey() == dest){
-                List<NodeData> l = new LinkedList<>();
-                if (prev[u.getKey()]!=null || u.getKey()==src)
-                    while (prev[u.getKey()]!=null){
-                        l.add(0,u);
-                        u = prev[u.getKey()];
-                    }
-                l.add(0,graph.NodeHash.get(src));
-                return l;
-            }
-            Iterator<EdgeData> it = graph.edgeIter(u.getKey());
-            while (it.hasNext()){
-                Edge e = (Edge) it.next();
-                if (q.containsKey(e.getDest())){
-                    double t = dist[u.getKey()]+e.getWeight();
-                    if (t < dist[e.getDest()]){
-                        dist[e.getDest()] = t;
-                        prev[e.getDest()] = u;
-                    }
-                }
-            }
-        }
-        return null;//dist[dest];
-    }
-    private double[][] matShortPath(){
-        int len = this.graph.NodeHash.size();
-        double[][] mat = new double[len][len];
-        for (EdgeData e : this.graph.EdgeHash.values()) {
-            mat[e.getSrc()][e.getDest()] = e.getWeight();
-        }
-        for (int k = 0; k < mat.length; k++) {
-            for (int i = 0; i < mat.length; i++) {
-                for (int j = 0; j < mat.length; j++) {
-                    if (mat[i][k] != 0 && mat[k][j] != 0) {
-                        mat[i][j] = mini(mat[i][j], mat[i][k] + mat[k][j]);
-
-                    }
-                }
-            }
-        }
-        return mat;
+        Dijkstra d = new Dijkstra(this.graph);
+        return d.getPath(src,dest);
     }
     @Override
     public NodeData center() {
         if(!this.isConnected())
             return null;
-        double[][] mat = matShortPath();
         double min=Integer.MAX_VALUE;
-        int ans=-1;
-        for (int i = 0; i < mat.length; i++) {
-            double temp = Arrays.stream(mat[i]).max().getAsDouble();
-            if(temp<min && temp!=0) {
-                min = temp;
-                ans = i;
+        NodeData ans= null;
+        Dijkstra d = new Dijkstra(this.graph);
+        for (NodeData n : this.graph.NodeHash.values()){
+            double max = d.getMaxPath(n.getKey());
+            if (max < min){
+                min = max;
+                ans = n;
             }
         }
-        return this.graph.NodeHash.get(ans);
+        return ans;
     }
 
     @Override
     public List<NodeData> tsp(List<NodeData> cities) {
-        //add option if is not connect
-        if (cities.size()==0)
+        if (!isConnected() || cities.size()==0)
             return null;
-
-        double[][] mat = matShortPath();
         List<NodeData> ans = new LinkedList<>();
         List<NodeData> temp = new ArrayList<>(cities);
-        ans.add(temp.remove(0));
+        NodeData p = temp.remove(0);
+        ans.add(p);
         while (temp.size()>=1){
-            int id = ans.get(ans.size()-1).getKey();
-            NodeData n = null; double min=Integer.MAX_VALUE;
-            for(NodeData t : temp){
-                if (mat[id][t.getKey()]<min){
-                    min = mat[id][t.getKey()];
-                    n = t ;
+            int id = p.getKey();
+            Dijkstra d = new Dijkstra(this.graph);
+            HashMap<Integer,Double> dist = d.getDist(id);
+            NodeData t = null; double min=Integer.MAX_VALUE;
+            for(NodeData n : temp){
+                if (dist.get(n.getKey())<min){
+                    min = dist.get(n.getKey());
+                    t = n ;
                 }
             }
-            ans.add(n);
-            temp.remove(n);
+            List<NodeData> path = new LinkedList<>();
+            HashMap<Integer,NodeData> prev = d.getPrev();
+            NodeData c = t;
+            if (prev.get(t.getKey())!=null || t.getKey()==id)
+                while (prev.get(t.getKey())!=null){
+                    path.add(0,t);
+                    t = prev.get(t.getKey());
+                }
+            p = c;
+            temp.remove(c);
+            ans.addAll(path);
         }
-        for (NodeData n:cities) {
-            n.setTag(0);
-        }
-
-        return null;
+        return ans;
     }
 
     @Override
