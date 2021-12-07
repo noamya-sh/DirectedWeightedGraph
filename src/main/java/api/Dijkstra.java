@@ -54,6 +54,8 @@ public class Dijkstra {
         dist.replace(src,0.0);
         while (!q.isEmpty()){
             NodeData u=findmin(q);
+            if (u == null)
+                return null;
             q.remove(u.getKey());
             if (u.getKey() == dest){
                 List<NodeData> l = new LinkedList<>();
@@ -74,13 +76,15 @@ public class Dijkstra {
         dist.replace(src,0.0);
         while (!q.isEmpty()){
             NodeData u=findmin(q);
+            if (u == null)
+                return -1;
             q.remove(u.getKey());
             if (u.getKey() == dest){
                 return dist.get(u.getKey());
             }
             refresh(u);
         }
-        return 0;//dist[dest];
+        return -1;
     }
     private void fullDij(int src){
         init();
