@@ -3,11 +3,13 @@ package api;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 public class window extends JFrame implements ActionListener {
+    JPanel mainPanel = new JPanel();
     PaintPanel panel;
     GraphAlgo d=new GraphAlgo();
     JMenuBar menuBar;
@@ -52,7 +54,7 @@ public class window extends JFrame implements ActionListener {
         //this.setLayout(null);
 
 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
         System.out.println(screensize);
         //this.setSize(screensize.width / 2, screensize.height / 2);
@@ -100,9 +102,9 @@ public class window extends JFrame implements ActionListener {
         SPITEM.addActionListener(this);
         IcITEM.addActionListener(this);
 
-        loadItem.setIcon(loadIcon);
-        saveItem.setIcon(saveIcon);
-        exitItem.setIcon(exitIcon);
+//        loadItem.setIcon(loadIcon);
+//        saveItem.setIcon(saveIcon);
+//        exitItem.setIcon(exitIcon);
 
         fileMenu.add(loadItem);
         fileMenu.add(saveItem);
@@ -142,6 +144,7 @@ public class window extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        Container contain = getContentPane();
 
         if(e.getSource()==loadItem) {
             //this.panel=new PaintPanel();
@@ -149,31 +152,29 @@ public class window extends JFrame implements ActionListener {
             fc.setCurrentDirectory(new File("src/main/java"));
             int option=fc.showOpenDialog(this);
             if (option==JFileChooser.APPROVE_OPTION){
+                contain.removeAll();
                 File f=fc.getSelectedFile();
-                this.panel=new PaintPanel(f.getPath());
+                PaintPanel p =new PaintPanel(f.getPath());
+                d=(GraphAlgo) p.dg;
+                this.panel = p;
+                contain.add(p);
+                contain.validate();
+                contain.repaint();
+                //this.add(this.panel);
 
-                this.add(this.panel);
-                d=(GraphAlgo) panel.dg;
                 this.setVisible(true);
-
-
-
-                //repaint();
             }
 
         }
 
         if(e.getSource()==saveItem) {
-            GraphAlgo d= new GraphAlgo();
-            Node n= new Node(0);
-            Node b= new Node(1);
-            n.setWeight(6);
-            Edge ee=new Edge();
-            d.getGraph().addNode(n);
-            d.getGraph().addNode(b);
-            d.getGraph().connect(0,1,54);
-            d.save("newGraphSaved");
-            System.out.println("*beep boop* you saved a file");
+            JFileChooser fc=new JFileChooser();
+            fc.setCurrentDirectory(new File("src/main/java"));
+            int option=fc.showSaveDialog(this);
+            if (option==JFileChooser.APPROVE_OPTION){
+                File file = fc.getSelectedFile();
+                d.save(file.getPath());
+            }
         }
         if(e.getSource()==SPDItem) {
             this.tf = new JTextField();
@@ -189,69 +190,88 @@ public class window extends JFrame implements ActionListener {
 //            this.add(l);
 
         }
-        if (e.getSource()== b) {
-            String s = tf.getText();
-            JLabel j=new JLabel();
-            j.setBounds(250,20,400,400);
-            j.setFont(new Font("Serif",Font.BOLD,30));
-            j.setText(""+d.shortestPathDist(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-            this.panel.add(j);
-            this.panel.remove(tf);
-            this.panel.remove(b);
-            this.setVisible(false);
-            this.setVisible(true);
-            //this.panel.remove(j);
-            System.out.println(d.shortestPathDist(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-        }
-
-        System.out.println("h");
-
-        if(e.getSource()==exitItem) {
-            System.exit(0);
-        }
+//        if (e.getSource()== b) {
+//            String s = tf.getText();
+//            JLabel j=new JLabel();
+//            j.setBounds(250,20,400,400);
+//            j.setFont(new Font("Serif",Font.BOLD,30));
+//            j.setText(""+d.shortestPathDist(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
+//            this.panel.add(j);
+//            this.panel.remove(tf);
+//            this.panel.remove(b);
+//            this.setVisible(false);
+//            this.setVisible(true);
+//            //this.panel.remove(j);
+//            System.out.println(d.shortestPathDist(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
+//        }
+//
+//        System.out.println("h");
+//
+//        if(e.getSource()==exitItem) {
+//            System.exit(0);
+//        }
         if(e.getSource()==CITEM){
             JLabel j=new JLabel();
             j.setBounds(580,580,200,200);
             j.setFont(new Font("Serif",Font.BOLD,30));
-            j.setText(""+d.center());
-            this.panel.add(j);
-            this.setVisible(false);
-            this.setVisible(true);
-            System.out.println(d.center());
+//            if (contain.)
+            if (this.panel!=null && this.d.getGraph().nodeSize()>0){
+            //j.setText(""+d.center());
+
+                d=(GraphAlgo) panel.dg;
+                int key = d.center().getKey();
+                //this.panel.center=key;
+                PaintPanel p = new PaintPanel(d,this.panel.l,key);
+                //p.center=key;
+
+                contain.removeAll();
+                contain.add(p);
+                this.panel=p;
+                JLabel title = new JLabel("The center NodeData: "+key, JLabel.CENTER);
+                title.setFont(new Font("Eras Demi ITC", Font.PLAIN, 30));
+                title.setPreferredSize(new Dimension(getWidth() / 2, 50));
+                contain.add(title, BorderLayout.PAGE_START);
+                contain.validate();
+                contain.repaint();
+                this.setVisible(true);
+                System.out.println(d.center());}
         }
-        if(e.getSource()==SPITEM){
-            this.tf2 = new JTextField();
-            tf2.setBounds(50, 50, 100, 20);
-            this.panel.add(tf2);
-            tf2.addActionListener(this);
-            this.b1 = new JButton("go");
-            b1.setBounds(50, 100, 100, 20);
-            this.panel.add(b1);
-            b1.addActionListener(this);
-        }
-        if(e.getSource()==b1){
-            String s = tf2.getText();
-            JLabel j=new JLabel();
-            j.setBounds(80,80,50,400);
-            j.setFont(new Font("Serif",Font.BOLD,30));
-            j.setText(""+d.shortestPath(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-            this.panel.add(j);
-            this.panel.remove(tf2);
-            this.panel.remove(b1);
-            this.setVisible(false);
-            this.setVisible(true);
-            System.out.println(d.shortestPath(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-        }
-        if(e.getSource()==IcITEM){
-            JLabel j=new JLabel();
-            j.setBounds(80,80,400,400);
-            j.setFont(new Font("Serif",Font.BOLD,30));
-            j.setText(""+d.isConnected());
-            this.panel.add(j);
-            this.setVisible(false);
-            this.setVisible(true);
-            System.out.println(d.isConnected());
-        }
+//        if(e.getSource()==SPITEM){
+//            this.tf2 = new JTextField();
+//            tf2.setBounds(50, 50, 100, 20);
+//            this.panel.add(tf2);
+//            tf2.addActionListener(this);
+//            this.b1 = new JButton("go");
+//            b1.setBounds(50, 100, 100, 20);
+//            this.panel.add(b1);
+//            b1.addActionListener(this);
+//        }
+//        if(e.getSource()==b1){
+//            String s = tf2.getText();
+//            JLabel j=new JLabel();
+//            j.setBounds(80,80,50,400);
+//            j.setFont(new Font("Serif",Font.BOLD,30));
+//            j.setText(""+d.shortestPath(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
+//            this.panel.add(j);
+//            this.panel.remove(tf2);
+//            this.panel.remove(b1);
+//            this.setVisible(false);
+//            this.setVisible(true);
+//            System.out.println(d.shortestPath(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
+//        }
+//        if(e.getSource()==IcITEM){
+//            JLabel j=new JLabel();
+//            j.setBounds(80,80,400,400);
+//            j.setFont(new Font("Serif",Font.BOLD,30));
+//            //j.setText(""+d.isConnected());
+//            PaintPanel p = new PaintPanel(this.panel.path);
+//            p.con = "Is connected? "+d.isConnected();
+//            //this.panel.con = "Is connected? "+d.isConnected();
+//            this.panel.add(p);
+//            this.setVisible(false);
+//            this.setVisible(true);
+//            //System.out.println(d.isConnected());
+//        }
         if (e.getSource()==addNode){
             this.tex = new JTextField();
             tex.setBounds(50, 50, 100, 20);
