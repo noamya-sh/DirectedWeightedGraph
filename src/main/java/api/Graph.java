@@ -21,8 +21,8 @@ public class Graph implements DirectedWeightedGraph{
         for (var entry: d.EdgeHash.entrySet()) {
             Edge e = new Edge(entry.getValue());
             EdgeHashCopy.put(entry.getKey(), e);
-            ((Node) NodeHash.get(entry.getKey())).getEdges().put(e.getDest(),e); //insert to edges (hash) in src Node
-            ((Node) NodeHash.get(e.getDest())).getNeighbors().put(e.src,e.dest); //insert to neighbors list of dest Node
+            ((Node) NodeHashCopy.get(e.getSrc())).getEdges().put(e.getDest(),e); //insert to edges (hash) in src Node
+            ((Node) NodeHashCopy.get(e.getDest())).getNeighbors().put(e.src,e.dest); //insert to neighbors list of dest Node
         }
         this.EdgeHash = EdgeHashCopy;
         this.NodeHash = NodeHashCopy;
@@ -54,9 +54,15 @@ public class Graph implements DirectedWeightedGraph{
     @Override
     public void connect(int src, int dest, double w) {
         Edge e = new Edge(src,dest,w);
-        EdgeHash.put(src+"_"+dest,e);
-        ((Node) NodeHash.get(src)).getEdges().put(dest,e);
-        ((Node) NodeHash.get(dest)).getNeighbors().put(src,dest);
+        if (!EdgeHash.containsKey(src+"_"+dest)){
+            EdgeHash.put(src+"_"+dest,e);
+            ((Node) NodeHash.get(src)).getEdges().put(dest,e);
+            ((Node) NodeHash.get(dest)).getNeighbors().put(src,dest);
+        }
+        else {
+            EdgeHash.replace(src+"_"+dest,e);
+            ((Node) NodeHash.get(src)).getEdges().replace(dest,e);
+        }
         this.MC++;
     }
 
@@ -160,8 +166,11 @@ public class Graph implements DirectedWeightedGraph{
             EdgeHash.remove(key+"_"+e.getDest());
         }
         //remove edges from Nodes that they have edges to this Node
-        for (Integer src:((Node) NodeHash.get(key)).getNeighbors().values())
+        for (Integer src:((Node) NodeHash.get(key)).getNeighbors().keySet()){
             ((Node) NodeHash.get(src)).getEdges().remove(key);
+            EdgeHash.remove(src+"_"+key);
+        }
+
         this.MC++;
         return NodeHash.remove(key);
     }

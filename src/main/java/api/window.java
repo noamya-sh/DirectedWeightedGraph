@@ -3,78 +3,26 @@ package api;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Point2D;
 import java.io.File;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class window extends JFrame implements ActionListener {
-    JPanel mainPanel = new JPanel();
+
     PaintPanel panel;
-    GraphAlgo d=new GraphAlgo();
+    GraphAlgo d;
     JMenuBar menuBar;
-    JMenu fileMenu;
-    JMenu editMenu;
-    JMenu runAlgoMenu;
-    JMenu helpMenu;
-    JMenuItem loadItem;
-    JMenuItem saveItem;
-    JMenuItem exitItem;
-    JMenuItem SPDItem;
-    JMenuItem CITEM;
-    JMenuItem SPITEM;
-    JMenuItem IcITEM;
-    JMenuItem addNode;
-    JMenuItem removeNode;
-    JMenuItem addEdge;
-    JMenuItem removeEdge;
+    JMenu fileMenu, editMenu, runAlgoMenu, helpMenu;
+    JMenuItem loadItem,saveItem,exitItem,SPDItem,CITEM, shortestPath,IcITEM,addNode,removeNode,addEdge,removeEdge,TspITEM;
 
-    JTextField tex;
-    JTextField tf;
-    JTextField tf2;
-    JButton bot;
-    JButton b;
-    JButton b1;
-    JButton b2;
-    JButton b3;
-    JButton b4;
-    JButton b5;
-
-    JLabel l;
-    ImageIcon loadIcon;
-    ImageIcon saveIcon;
-    ImageIcon exitIcon;
-
-
-    window(){
+    public window(DirectedWeightedGraphAlgorithms d){
         super();
+        this.d = (GraphAlgo) d;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(getToolkit().getScreenSize());
-        //this.setLayout(new FlowLayout());
-        //this.setLayout(null);
-
-
-        //this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-        System.out.println(screensize);
-        //this.setSize(screensize.width / 2, screensize.height / 2);
-        //jf.setResizable(false);
+        this.setSize(screensize.width , screensize.height );
         this.getContentPane().setBackground(new Color(255, 255, 255));
-        //this.add(this.panel);
-        this.setVisible(true);
-        repaint();
-
-
-        loadIcon = new ImageIcon("./resources/load.jpg");
-        saveIcon = new ImageIcon("./resources/save.png");
-        exitIcon = new ImageIcon("./resources/exit.jpg");
-
-        loadIcon = scaleImageIcon(loadIcon,20,20);
-        saveIcon = scaleImageIcon(saveIcon,20,20);
-        exitIcon = scaleImageIcon(exitIcon,20,20);
-
         menuBar = new JMenuBar();
-
         fileMenu = new JMenu("File");
         editMenu = new JMenu("Edit");
         runAlgoMenu = new JMenu(("RunAlgo"));
@@ -84,9 +32,9 @@ public class window extends JFrame implements ActionListener {
         saveItem = new JMenuItem("Save");
         exitItem = new JMenuItem("Exit");
         SPDItem = new JMenuItem("ShortestPathDist");
-        SPITEM = new JMenuItem("shortestPath");
+        shortestPath = new JMenuItem("shortestPath");
         CITEM = new JMenuItem("center");
-        JMenuItem TspITEM = new JMenuItem("tsp");
+        TspITEM = new JMenuItem("tsp");
         IcITEM = new JMenuItem("isConnected");
         addNode =new JMenuItem(("addNode"));
         removeNode =new JMenuItem(("removeNode"));
@@ -99,12 +47,13 @@ public class window extends JFrame implements ActionListener {
         exitItem.addActionListener(this);
         SPDItem.addActionListener(this);
         CITEM.addActionListener(this);
-        SPITEM.addActionListener(this);
+        shortestPath.addActionListener(this);
         IcITEM.addActionListener(this);
-
-//        loadItem.setIcon(loadIcon);
-//        saveItem.setIcon(saveIcon);
-//        exitItem.setIcon(exitIcon);
+        removeNode.addActionListener(this);
+        removeEdge.addActionListener(this);
+        addNode.addActionListener(this);
+        addEdge.addActionListener(this);
+        TspITEM.addActionListener(this);
 
         fileMenu.add(loadItem);
         fileMenu.add(saveItem);
@@ -115,33 +64,38 @@ public class window extends JFrame implements ActionListener {
         editMenu.add(removeEdge);
         runAlgoMenu.add(IcITEM);
         runAlgoMenu.add(SPDItem);
-        runAlgoMenu.add(SPITEM);
+        runAlgoMenu.add(shortestPath);
         runAlgoMenu.add(CITEM);
         runAlgoMenu.add(TspITEM);
-
-//        fileMenu.setMnemonic(KeyEvent.VK_F); // Alt + f for file
-//        editMenu.setMnemonic(KeyEvent.VK_E); // Alt + e for edit
-//        runAlgoMenu.setMnemonic(KeyEvent.VK_R);
-//        helpMenu.setMnemonic(KeyEvent.VK_H); // Alt + h for help
-//        loadItem.setMnemonic(KeyEvent.VK_L); // l for load
-//        saveItem.setMnemonic(KeyEvent.VK_S); // s for save
-//        exitItem.setMnemonic(KeyEvent.VK_E); // e for exit
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
         menuBar.add(runAlgoMenu);
 
         this.setJMenuBar(menuBar);
-
-        this.setVisible(true);
+        this.panel = new PaintPanel(this.d.graph);
+        this.add(this.panel);        this.setVisible(true);
     }
+    public JPanel select(){
+        JPanel p = new JPanel();
+        JLabel selSrc = new JLabel("Select src Node:");
+        p.add(selSrc);
+        JComboBox<Integer> nodes1 = new JComboBox<>();
+        for (int id : panel.dg.graph.NodeHash.keySet()) nodes1.addItem(id);
+        p.add(nodes1);
 
-    public static ImageIcon scaleImageIcon(ImageIcon imageIcon,int width,int height){
-        Image image = imageIcon.getImage(); // transform it
-        Image newimg = image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-        return new ImageIcon(newimg);  // transform it back
+        JLabel helpButton = new JLabel("Select dest Node:");
+        p.add(helpButton);
+
+        JComboBox<Integer> nodes2 = new JComboBox<>();
+        for (int id : panel.dg.graph.NodeHash.keySet()) nodes2.addItem(id);
+//            nodes2.setBackground(Color.orange);
+        p.add(nodes2);
+        JButton find = new JButton("FIND");
+        find.setBackground(Color.yellow);
+        p.add(find);
+        return p;
     }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Container contain = getContentPane();
@@ -166,7 +120,6 @@ public class window extends JFrame implements ActionListener {
             }
 
         }
-
         if(e.getSource()==saveItem) {
             JFileChooser fc=new JFileChooser();
             fc.setCurrentDirectory(new File("src/main/java"));
@@ -177,146 +130,368 @@ public class window extends JFrame implements ActionListener {
             }
         }
         if(e.getSource()==SPDItem) {
-            this.tf = new JTextField();
-            tf.setBounds(50, 50, 100, 20);
-            this.panel.add(tf);
-            tf.addActionListener(this);
-            this.b = new JButton("find shorest path");
-            b.setBounds(50, 100, 200, 20);
-            this.panel.add(b);
-            b.addActionListener(this);
-//            this.l = new JLabel("hello");
-//            l.setBounds(80, 50, 70, 20);
-//            this.add(l);
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            JPanel p = select();
+            JButton find = (JButton) p.getComponent(4);
+            JComboBox nodes1 = (JComboBox) p.getComponent(1);
+            JComboBox nodes2 = (JComboBox) p.getComponent(3);
+            find.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    double a = d.shortestPathDist((int)nodes1.getSelectedItem(),(int)nodes2.getSelectedItem());
+                    contain.remove(p);
+                    if (a==-1){
+                        JLabel title = new JLabel("ERROR: no such path!", JLabel.CENTER);
+                        title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                        title.setForeground(Color.RED);
+                        title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                        contain.add(title, BorderLayout.PAGE_START);
+                        contain.validate();
+                        contain.repaint();
+                        setVisible(true);
+                        return;
+                    }
+                    JLabel title = new JLabel("The ShortPathDist between "+nodes1.getSelectedItem()+" to "+
+                            nodes2.getSelectedItem()+" : "+a, JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            p.add(find);
+            contain.add(p,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
+        }
+        if (e.getSource()== TspITEM) {
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            JPanel p = new JPanel();
+            JLabel selSrc = new JLabel("Select Node:");
+            p.add(selSrc);
+            JComboBox<Integer> nodes1 = new JComboBox<>();
+            for (int id : panel.dg.graph.NodeHash.keySet()) nodes1.addItem(id);
+            p.add(nodes1);
+            JComboBox<Integer> nodes2 = new JComboBox<>();
+            JButton add = new JButton("Add Node");
+            JButton remove = new JButton("Remove Node");
+            add.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int x = (int) nodes1.getSelectedItem();
+                    nodes2.addItem(x);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            p.add(add);
+            remove.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int x = (int) nodes1.getSelectedItem();
+                    if(((DefaultComboBoxModel) nodes2.getModel()).getIndexOf(x)!=-1)//.getIndexOf(nodes2) == -1 ) {
+                        nodes2.removeItem(x);
+                        contain.validate();
+                        contain.repaint();
+                        setVisible(true);
+                    }
+
+            });
+            p.add(remove);
+            JLabel j = new JLabel("The requested cities:");
+            p.add(j);
+            p.add(nodes2);
+            JButton find = new JButton("FIND TSP");
+            find.setBackground(Color.yellow);
+            find.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    List<NodeData> send = new ArrayList<>();
+                    for (int i = 0; i < nodes2.getItemCount(); i++) send.add(panel.dg.graph.NodeHash.get(nodes2.getItemAt(i)));
+                    List<NodeData> ans = panel.dg.tsp(send);
+                    contain.remove(p);
+                    if (ans==null){
+                        JLabel title = new JLabel("ERROR: the graph is not connected!", JLabel.CENTER);
+                        title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                        title.setForeground(Color.RED);
+                        title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                        contain.add(title, BorderLayout.PAGE_START);
+                        contain.validate();
+                        contain.repaint();
+                        setVisible(true);
+                        return;
+                    }
+                    panel.drawEdges(ans);
+                    JLabel title = new JLabel("This Tsp path:", JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            p.add(find);
+            contain.add(p,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
 
         }
-//        if (e.getSource()== b) {
-//            String s = tf.getText();
-//            JLabel j=new JLabel();
-//            j.setBounds(250,20,400,400);
-//            j.setFont(new Font("Serif",Font.BOLD,30));
-//            j.setText(""+d.shortestPathDist(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-//            this.panel.add(j);
-//            this.panel.remove(tf);
-//            this.panel.remove(b);
-//            this.setVisible(false);
-//            this.setVisible(true);
-//            //this.panel.remove(j);
-//            System.out.println(d.shortestPathDist(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-//        }
-//
-//        System.out.println("h");
-//
-//        if(e.getSource()==exitItem) {
-//            System.exit(0);
-//        }
         if(e.getSource()==CITEM){
-            JLabel j=new JLabel();
-            j.setBounds(580,580,200,200);
-            j.setFont(new Font("Serif",Font.BOLD,30));
-//            if (contain.)
             if (this.panel!=null && this.d.getGraph().nodeSize()>0){
-            //j.setText(""+d.center());
-
                 d=(GraphAlgo) panel.dg;
-                int key = d.center().getKey();
-                //this.panel.center=key;
-                PaintPanel p = new PaintPanel(d,this.panel.l,key);
-                //p.center=key;
-
                 contain.removeAll();
-                contain.add(p);
-                this.panel=p;
-                JLabel title = new JLabel("The center NodeData: "+key, JLabel.CENTER);
-                title.setFont(new Font("Eras Demi ITC", Font.PLAIN, 30));
-                title.setPreferredSize(new Dimension(getWidth() / 2, 50));
-                contain.add(title, BorderLayout.PAGE_START);
+                contain.add(panel);
+                NodeData center = d.center();
+                if (center!=null){
+                    this.panel.setCenter(center.getKey());
+                    JLabel title = new JLabel("The center NodeData: "+center.getKey(), JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+
+                }
+            else{
+                    JLabel title = new JLabel("ERROR: the graph is not connected!", JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setForeground(Color.RED);
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+                }
                 contain.validate();
                 contain.repaint();
                 this.setVisible(true);
-                System.out.println(d.center());}
+            }
         }
-//        if(e.getSource()==SPITEM){
-//            this.tf2 = new JTextField();
-//            tf2.setBounds(50, 50, 100, 20);
-//            this.panel.add(tf2);
-//            tf2.addActionListener(this);
-//            this.b1 = new JButton("go");
-//            b1.setBounds(50, 100, 100, 20);
-//            this.panel.add(b1);
-//            b1.addActionListener(this);
-//        }
-//        if(e.getSource()==b1){
-//            String s = tf2.getText();
-//            JLabel j=new JLabel();
-//            j.setBounds(80,80,50,400);
-//            j.setFont(new Font("Serif",Font.BOLD,30));
-//            j.setText(""+d.shortestPath(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-//            this.panel.add(j);
-//            this.panel.remove(tf2);
-//            this.panel.remove(b1);
-//            this.setVisible(false);
-//            this.setVisible(true);
-//            System.out.println(d.shortestPath(Character.getNumericValue(s.charAt(0)),Character.getNumericValue(s.charAt(2))));
-//        }
-//        if(e.getSource()==IcITEM){
-//            JLabel j=new JLabel();
-//            j.setBounds(80,80,400,400);
-//            j.setFont(new Font("Serif",Font.BOLD,30));
-//            //j.setText(""+d.isConnected());
-//            PaintPanel p = new PaintPanel(this.panel.path);
-//            p.con = "Is connected? "+d.isConnected();
-//            //this.panel.con = "Is connected? "+d.isConnected();
-//            this.panel.add(p);
-//            this.setVisible(false);
-//            this.setVisible(true);
-//            //System.out.println(d.isConnected());
-//        }
+        if(e.getSource()==shortestPath){
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            JPanel p = select();
+            JButton find = (JButton) p.getComponent(4);
+            JComboBox nodes1 = (JComboBox) p.getComponent(1);
+            JComboBox nodes2 = (JComboBox) p.getComponent(3);
+            find.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    List<NodeData> ans = panel.dg.shortestPath((int)nodes1.getSelectedItem(),(int)nodes2.getSelectedItem());
+                    contain.remove(p);
+                    if (ans==null){
+                        JLabel title = new JLabel("ERROR: no such path!", JLabel.CENTER);
+                        title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                        title.setForeground(Color.RED);
+                        title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                        contain.add(title, BorderLayout.PAGE_START);
+                        contain.validate();
+                        contain.repaint();
+                        setVisible(true);
+                        return;
+                    }
+                    panel.drawEdges(ans);
+                    JLabel title = new JLabel("This Short path between "+nodes1.getSelectedItem()+" to "+nodes2.getSelectedItem()+":", JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            p.add(find);
+            contain.add(p,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
+        }
+        if(e.getSource()==IcITEM) {
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            String bool = (panel.dg.isConnected()) ? "" : "not ";
+            JLabel title = new JLabel("The graph is "+bool+ "connected.", JLabel.CENTER);
+            title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+            title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+            contain.add(title,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
+        }
         if (e.getSource()==addNode){
-            this.tex = new JTextField();
-            tex.setBounds(50, 50, 100, 20);
-            this.add(tex);
-            tex.addActionListener(this);
-            this.b2 = new JButton("go");
-            b2.setBounds(50, 100, 100, 20);
-            this.add(b2);
-            b2.addActionListener(this);
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            JPanel p = new JPanel();
+            int x = 0;
+            while (panel.dg.graph.NodeHash.containsKey(x)) x++;
+            JLabel ID = new JLabel("New ID: "+x);
+            p.add(ID);
+            JLabel getx = new JLabel("Set X value:");
+            p.add(getx);
+            JTextField wr1 = new JTextField();
+            wr1.setColumns(4);//setSize(new Dimension(100,20));
+            p.add(wr1);
+            JLabel gety = new JLabel("Set Y value:");
+            p.add(gety);
+            JTextField wr2 = new JTextField();
+            wr2.setColumns(4);//.setSize(new Dimension(100,20));;
+            p.add(wr2);
+            JButton add = new JButton("ADD");
+            add.setBackground(Color.yellow);
+            int finalX = x;
+            add.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DirectedWeightedGraph d = panel.dg.copy();
+                    d.addNode(new Node(finalX,new Location(""+wr1.getText()+","+wr2.getText()+",0.0")));
+                    contain.removeAll();
+                    panel = new PaintPanel(d);
+                    contain.add(panel);
+                    JLabel title = new JLabel("Node "+finalX+" successfully added", JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            p.add(add);
+            contain.add(p,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
         }
         if (e.getSource()==removeNode){
-            this.tex = new JTextField();
-            tex.setBounds(50, 50, 100, 20);
-            this.add(tex);
-            tex.addActionListener(this);
-            this.b3 = new JButton("go");
-            b3.setBounds(50, 100, 100, 20);
-            this.add(b3);
-            b3.addActionListener(this);
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            JPanel p = new JPanel();
+            JLabel selSrc = new JLabel("Select Node to remove:");
+            p.add(selSrc);
+            JComboBox<Integer> nodes1 = new JComboBox<>();
+            for (int id : panel.dg.graph.NodeHash.keySet()) nodes1.addItem(id);
+            p.add(nodes1);
+            JButton remove = new JButton("REMOVE");
+            remove.setBackground(Color.yellow);
+            remove.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DirectedWeightedGraph d = panel.dg.copy();
+                    d.removeNode((int)nodes1.getSelectedItem());
+                    contain.removeAll();
+                    panel = new PaintPanel(d);
+                    contain.add(panel);
+                    JLabel title = new JLabel("Node "+(int)nodes1.getSelectedItem()+" successfully removed", JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            p.add(remove);
+            contain.add(p,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
         }
         if (e.getSource()==addEdge){
-            this.tex = new JTextField();
-            tex.setBounds(50, 50, 100, 20);
-            this.add(tex);
-            tex.addActionListener(this);
-            this.b4 = new JButton("go");
-            b4.setBounds(50, 100, 100, 20);
-            this.add(b4);
-            b4.addActionListener(this);
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            JPanel p = select();
+            JLabel w = new JLabel("Set weight:");
+            p.add(w,4);
+            JTextField setw = new JTextField();
+            setw.setColumns(4);
+            p.add(setw,5);
+            JButton add = (JButton) p.getComponent(6);
+            add.setText("ADD");
+            JComboBox nodes1 = (JComboBox) p.getComponent(1);
+            JComboBox nodes2 = (JComboBox) p.getComponent(3);
+            add.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DirectedWeightedGraph d = panel.dg.copy();
+                    d.connect((int)nodes1.getSelectedItem(),(int)nodes2.getSelectedItem(),Double.parseDouble(setw.getText()));
+                    contain.removeAll();
+                    panel = new PaintPanel(d);
+                    contain.add(panel);
+                    JLabel title = new JLabel("Edge from "+nodes1.getSelectedItem()+" to "+ nodes2.getSelectedItem()+ " successfully added", JLabel.CENTER);
+                    title.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 20));
+                    title.setPreferredSize(new Dimension(getWidth() / 2, 40));
+                    contain.add(title, BorderLayout.PAGE_START);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            contain.add(p,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
         }
         if (e.getSource()==removeEdge){
-            this.tex = new JTextField();
-            tex.setBounds(50, 50, 100, 20);
-            this.add(tex);
-            tex.addActionListener(this);
-            this.b5 = new JButton("go");
-            b5.setBounds(50, 100, 100, 20);
-            this.add(b5);
-            b5.addActionListener(this);
+            this.panel.drawEdges(null);
+            contain.removeAll();
+            contain.add(this.panel);
+            JPanel p = new JPanel();
+            JLabel selSrc = new JLabel("Select src Node:");
+            p.add(selSrc);
+            JComboBox<Integer> nodes1 = new JComboBox<>();
+            for (int id : panel.dg.graph.NodeHash.keySet()) nodes1.addItem(id);
+            p.add(nodes1);
+            JComboBox<Integer> nodes2 = new JComboBox<>();
+            nodes1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int x = (int) nodes1.getSelectedItem();
+                    nodes2.removeAllItems();
+                    for (int id : ((Node) panel.dg.graph.NodeHash.get(x)).getEdges().keySet()) nodes2.addItem(id);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            JLabel helpButton = new JLabel("Select dest Node:");
+            p.add(helpButton);
+            p.add(nodes2);
+            JButton remove = new JButton("REMOVE");
+            remove.setBackground(Color.yellow);
+            remove.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    DirectedWeightedGraph d = panel.dg.copy();
+                    d.removeEdge((int)nodes1.getSelectedItem(),(int)nodes2.getSelectedItem());
+                    contain.removeAll();
+                    panel = new PaintPanel(d);
+                    contain.add(panel);
+                    contain.validate();
+                    contain.repaint();
+                    setVisible(true);
+                }
+            });
+            p.add(remove);
+            contain.add(p,BorderLayout.PAGE_START);
+            contain.validate();
+            contain.repaint();
+            this.setVisible(true);
         }
 
     }
 
     public static void main(String[] args) {
-        new window();
+//        new window(alg);
     }
 
 }

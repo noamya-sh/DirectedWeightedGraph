@@ -16,6 +16,8 @@ public class Node implements NodeData {
     public Node(){
         this.pos = new Location();
         this.id =0;
+        this.edges=new HashMap<>();
+        this.neighbors=new HashMap<>();
 //        this.Weight=0;
 //        this.info="";
 //        this.Tag=0;
@@ -23,8 +25,8 @@ public class Node implements NodeData {
     public Node(int id){
         this.pos = new Location();
         this.id =id;
-        this.edges=new HashMap<Integer,EdgeData>();
-        this.neighbors=new HashMap<Integer,Integer>();
+        this.edges=new HashMap<>();
+        this.neighbors=new HashMap<>();
 //        this.Weight=0;
 //        this.info="";
 //        this.Tag=0;
@@ -46,8 +48,8 @@ public class Node implements NodeData {
     public Node(int id, Location l) {
         this.pos=l;
         this.id=id;
-        this.edges=new HashMap<Integer,EdgeData>();
-        this.neighbors=new HashMap<Integer,Integer>();
+        this.edges=new HashMap<>();
+        this.neighbors=new HashMap<>();
 //        this.Weight=0;
 //        this.info="";
 //        this.Tag=0;

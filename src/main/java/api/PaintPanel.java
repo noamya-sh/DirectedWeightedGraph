@@ -1,31 +1,22 @@
 package api;
 
-import api.*;
-
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 
 public class PaintPanel extends JPanel implements MouseInputListener {
     public String con = null;
-    DirectedWeightedGraphAlgorithms dg;
+    GraphAlgo dg;
     HashMap<Integer,Point2D> l;
     int center= -1;
-    int w=1280,h=720;
+    int w=(int) Toolkit.getDefaultToolkit().getScreenSize().getWidth() , h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
     public String path;
-
-
-    public int brushSize = 10;
-    private int mouseX = -1;
-    private int mouseY = -1;
-    private boolean mousePressed = false;
+    private List<NodeData> dEdges;
 
     public PaintPanel(String s) {
         super();
@@ -40,20 +31,49 @@ public class PaintPanel extends JPanel implements MouseInputListener {
             NodeData n = it.next();
             l.put(n.getKey(),new Point2D.Double(n.getLocation().x(),n.getLocation().y()));
         }
+//        LeftPanel leftPanel = new LeftPanel();
+//        leftPanel.setOpaque(false);
+//        leftPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
+//        add(leftPanel,BorderLayout.WEST);
+//        setOpaque(false);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 
     }
-    public PaintPanel(DirectedWeightedGraphAlgorithms dg,HashMap<Integer,Point2D> points,int center){
-        this.l=points;
-        this.dg=dg;
+    public PaintPanel(DirectedWeightedGraphAlgorithms dg,int center){
+        super();
+        this.dg=(GraphAlgo) dg;
+        this.l=new HashMap<>();
+        Iterator<NodeData> in = dg.getGraph().nodeIter();
+        while (in.hasNext()) {
+            NodeData n = in.next();
+            l.put(n.getKey(), new Point2D.Double(n.getLocation().x(), n.getLocation().y()));
+        }
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.center=center;
         this.setBackground(new Color(20,50,50));
-
     }
 
+    public PaintPanel(DirectedWeightedGraph d) {
+        super();
+        this.dg=new GraphAlgo();
+        this.dg.init(d);
+        this.l=new HashMap<>();
+        Iterator<NodeData> in = dg.getGraph().nodeIter();
+        while (in.hasNext()) {
+            NodeData n = in.next();
+            l.put(n.getKey(), new Point2D.Double(n.getLocation().x(), n.getLocation().y()));
+        }
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
+        this.setBackground(new Color(20,50,50));
+    }
+    public void setCenter(int center){
+        this.dEdges = null;
+        this.center = center;
+    }
+    public void initGraph(){}
     @Override
     public void mouseClicked(MouseEvent e) {
         this.repaint();
@@ -66,7 +86,7 @@ public class PaintPanel extends JPanel implements MouseInputListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        this.mousePressed = false;
+
     }
 
     @Override
@@ -90,75 +110,150 @@ public class PaintPanel extends JPanel implements MouseInputListener {
 
     }
     private double cal(double max,double min,double val,int h){
-        double diff= max-min;
-        return (((val-min)/diff)*h)*0.6+0.2*h;//+(0.1*h);
+        double diff= Math.abs(max-min);
+        //return (h/diff)*val;//*0.5;
+        return (((val-min)/diff)*h)*0.7+0.1*h;//+(0.1*h);
     }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g.create();
-        double maxx=Integer.MIN_VALUE,minx=Integer.MAX_VALUE;
-        double maxy=Integer.MIN_VALUE,miny=Integer.MAX_VALUE;
-        for (Point2D p : l.values()){
-            if (p.getX()>maxx)
-                maxx=p.getX();
-            if (p.getX()<minx)
-                minx=p.getX();
-            if (p.getY()>maxy)
-                maxy=p.getY();
-            if (p.getY()<miny)
-                miny=p.getY();
-
-        }
+        double maxx = Integer.MIN_VALUE, minx = Integer.MAX_VALUE;
+        double maxy = Integer.MIN_VALUE, miny = Integer.MAX_VALUE;
+        for (Point2D p : l.values()) {
+            if (p.getX() > maxx)
+                maxx = p.getX();
+            if (p.getX() < minx)
+                minx = p.getX();
+            if (p.getY() > maxy)
+                maxy = p.getY();
+            if (p.getY() < miny)
+                miny = p.getY();
+            }
         for (Point2D p : l.values())
-            p.setLocation(cal(maxx,minx,p.getX(),this.w),cal(maxy,miny,p.getY(),this.h));
-        Iterator<EdgeData> it = dg.getGraph().edgeIter();
-        while(it.hasNext()){
-            EdgeData e = it.next();
-            int x1 = (int)l.get(e.getSrc()).getX();
-            int y1 = (int)l.get(e.getSrc()).getY();
-            int x2 = (int)l.get(e.getDest()).getX();
-            int y2 = (int)l.get(e.getDest()).getY();
-            g.setColor(new Color(255, 177, 102));
+            p.setLocation(cal(maxx, minx, p.getX(), this.w), cal(maxy, miny, p.getY(), this.h));
+        List<Polygon> pol2 = new ArrayList<>();
+        HashMap<String,EdgeData> copy = new HashMap<>(dg.graph.EdgeHash);
+        if (dEdges != null) {
+            Iterator ed = dEdges.iterator();
+            NodeData src = (NodeData) ed.next();
+            while (ed.hasNext()) {
+                NodeData dest = (NodeData) ed.next();
+                copy.remove(src.getKey() + "_" + dest.getKey());
+                src = dest;
+            }
+        }
 
-            String w = String.format("%.2f", e.getWeight());
-            g.setFont(new Font("Ink Free", Font.PLAIN, 10));
-//            if (x2 > x1)
-//                g.drawString(w,(int)((x1+x2)/2) + 10,(int)((y1+y2)/2) + 10);
-//            else
-//                g.drawString(w,(int)((x1+x2)/2) - 10,(int)((y1+y2)/2) -10);
-            g.setColor(new Color(153, 204, 255));
-            g2d.setColor(new Color(153, 204, 255));
-            g2d.setStroke(new BasicStroke(1.5F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g2d.drawLine(x1,y1,x2,y2);
-        }
-        for (var e:l.entrySet()){
-            if (e.getKey()!=center){
-                g.setColor(new Color(204, 204, 0));
-                //e.getValue().setLocation(cal(maxx,minx,e.getValue().getX(),this.w),cal(maxy,miny,e.getValue().getY(),this.h));
-                g.fillOval((int)e.getValue().getX()-5,(int)e.getValue().getY()-5,10,10);
-                g.setColor(new Color(0, 0, 0));
-                g.setFont(new Font("Eras Demi ITC", Font.BOLD, 12));
-                g.drawString(""+e.getKey(),(int)e.getValue().getX()-5,(int)e.getValue().getY()-7);
+        List<Polygon> pol = new ArrayList<>();
+            for (EdgeData e : copy.values()) {
+                int x1 = (int) l.get(e.getSrc()).getX();
+                int y1 = (int) l.get(e.getSrc()).getY();
+                int x2 = (int) l.get(e.getDest()).getX();
+                int y2 = (int) l.get(e.getDest()).getY();
+                g.setColor(new Color(255, 177, 102));
+                String w = String.format("%.2f", e.getWeight());
+                g.setFont(new Font("Times New Roman", Font.PLAIN, 10));
+                if (x2 > x1)
+                    g.drawString(w,(int)((x1+x2)/2) + 5,(int)((y1+y2)/2) + 5);
+                else
+                    g.drawString(w,(int)((x1+x2)/2) - 10,(int)((y1+y2)/2) -5);
+                Color c = new Color(153, 204, 255);
+                pol.add(drawArrowLine(g2d,x1, y1, x2, y2,10,5,c,2));
             }
-            else if (e.getKey()==center){
-                g.setColor(new Color(255, 100, 102));
-                e.getValue().setLocation(cal(maxx,minx,e.getValue().getX(),this.w),cal(maxy,miny,e.getValue().getY(),this.h));
-                g.fillOval((int)e.getValue().getX()-6,(int)e.getValue().getY()-6,12,12);
-                g.setFont(new Font("Ink Free", Font.BOLD, 20));
-                g.drawString("Center",(int)e.getValue().getX()-6,(int)e.getValue().getY()+26);
-                g.setFont(new Font("Eras Demi ITC", Font.BOLD, 12));
-                g.setColor(new Color(0, 0, 0));
-                g.drawString(""+e.getKey(),(int)e.getValue().getX()-5,(int)e.getValue().getY()-7);
+        for (Polygon p :pol){
+            g.setColor(new Color(102,0,51));
+            g.fillPolygon(p);
+        }
+        if (dEdges != null) {
+            Iterator ed = dEdges.iterator();
+            NodeData src = (NodeData) ed.next();
+            while (ed.hasNext()) {
+                NodeData dest = (NodeData) ed.next();
+                int x1 = (int) l.get(src.getKey()).getX();
+                int y1 = (int) l.get(src.getKey()).getY();
+                int x2 = (int) l.get(dest.getKey()).getX();
+                int y2 = (int) l.get(dest.getKey()).getY();
+                Color c = new Color(204, 150, 0);
+                g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                //g2d.drawLine(x1, y1, x2, y2);
+                pol2.add(drawArrowLine(g2d,x1, y1, x2, y2,14,9, c,3));
+                src = dest;
             }
-            //g.drawString(Integer.toString(l.get() ),(int)p.getX(),(int)p.getY());
         }
-        if (con!= null){
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Ink Free", Font.BOLD, 40));
-            g.drawString(con,getWidth()/2-100,getHeight()/2-500);
+        for (Polygon p :pol2){
+            g.setColor(new Color(76,153,0));
+            g.fillPolygon(p);
         }
+            for (var e : l.entrySet()) {
+                if (e.getKey() != center) {
+                    g.setColor(new Color(102,0,0));
+                    //e.getValue().setLocation(cal(maxx,minx,e.getValue().getX(),this.w),cal(maxy,miny,e.getValue().getY(),this.h));
+                    g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
+                    g.setColor(new Color(255, 255, 255));
+                    g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 11));
+                    g.drawString("" + e.getKey(), (int) e.getValue().getX() - 6, (int) e.getValue().getY() + 5);
+                } else if (e.getKey() == center) {
+                    g.setColor(new Color(0, 153, 76));
+                    g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
+                    g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 20));
+                    g.drawString("Center", (int) e.getValue().getX() - 6, (int) e.getValue().getY() + 26);
+                    g.setColor(new Color(0, 0, 0));
+                    g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 12));
+                    g.drawString("" + e.getKey(), (int) e.getValue().getX() - 6, (int) e.getValue().getY() + 5);
+                }
+                //g.drawString(Integer.toString(l.get() ),(int)p.getX(),(int)p.getY());
+            }
+
+            if (con != null) {
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Ink Free", Font.BOLD, 40));
+                g.drawString(con, getWidth() / 2 - 100, getHeight() / 2 - 500);
+            }
+
+
 //        }
+        }
+
+    private Polygon drawArrowLine(Graphics g, int x1, int y1, int x2, int y2, int width, int height, Color c, int s) {
+        int dx = x2 - x1, dy = y2 - y1;
+        double D = Math.sqrt(dx*dx + dy*dy);
+        double xm = D - width, xn = xm, ym = height, yn = -height, x;
+        double sin = dy / D, cos = dx / D;
+
+        x = xm*cos - ym*sin + x1;
+        ym = xm*sin + ym*cos + y1;
+        xm = x;
+
+        x = xn*cos - yn*sin + x1;
+        yn = xn*sin + yn*cos + y1;
+        xn = x;
+
+
+        x2 = (int) ((xm+xn)/2); y2 = (int) ((ym+yn)/2);
+        dx = x2 - x1;
+        dy = y2 - y1;
+        D = Math.sqrt(dx*dx + dy*dy);
+        xm = D - width; xn = xm; ym = height; yn = -height;
+        sin = dy / D; cos = dx / D;
+
+        x = xm*cos - ym*sin + x1;
+        ym = xm*sin + ym*cos + y1;
+        xm = x;
+
+        x = xn*cos - yn*sin + x1;
+        yn = xn*sin + yn*cos + y1;
+        xn = x;
+        int[] xpoints = {x2, (int) xm, (int) xn};
+        int[] ypoints = {y2, (int) ym, (int) yn};
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setStroke(new BasicStroke(s, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2d.setColor(c);
+        g2d.drawLine(x1, y1, x2, y2);
+        return new Polygon(xpoints,ypoints, 3);
+    }
+        public void drawEdges (List < NodeData > ans) {
+            this.center = -1;
+            this.dEdges = ans;
+        }
     }
 
-}

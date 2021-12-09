@@ -37,7 +37,7 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
         return DA;
     }
 
-    private HashMap<Integer,Boolean> dfs(Graph g){
+    private HashMap<Integer,Boolean> bfs(Graph g){
         HashMap<Integer,Boolean> test = new HashMap<>();
         Iterator<NodeData> it = g.nodeIter();
         it.forEachRemaining(n->test.put(n.getKey(),false));
@@ -60,7 +60,7 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
     }
     @Override
     public boolean isConnected() {
-        HashMap<Integer,Boolean> d = dfs(graph);
+        HashMap<Integer,Boolean> d = bfs(graph);
         for (Boolean b:d.values()) if (b==false) return false;
         //create transfom of this graph, invert each edge..
         Graph copy = new Graph();
@@ -69,7 +69,7 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
             int dest = e.getSrc(), src = e.getDest();
             ((Node) copy.NodeHash.get(src)).getEdges().put(dest,new Edge(src,dest,e.getWeight()));
         }
-        HashMap<Integer,Boolean> r = dfs(copy);
+        HashMap<Integer,Boolean> r = bfs(copy);
         for (Boolean b:r.values()) if (b==false) return false;
         return true;
     }
