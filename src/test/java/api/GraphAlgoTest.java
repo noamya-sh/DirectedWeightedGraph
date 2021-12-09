@@ -49,7 +49,10 @@ class GraphAlgoTest {
         f.connect(0,1,5);
         f.connect(1,0,5);
         g.init(f);
-        assertTrue(g.isConnected());
+        //assertTrue(g.isConnected());
+        //GraphAlgo g=new GraphAlgo();
+        g.load("src/test/10000Nodes.json");
+        System.out.println(g.isConnected());
     }
 
     @Test
