@@ -29,7 +29,9 @@ public class Ex2 {
      * @return
      */
     public static DirectedWeightedGraphAlgorithms getGrapgAlgo(String json_file) {
-        DirectedWeightedGraphAlgorithms ans = null;
+        DirectedWeightedGraphAlgorithms da = new GraphAlgo();
+        da.load(json_file);
+        DirectedWeightedGraphAlgorithms ans = da;
         // ****** Add your code here ******
         //
         // ********************************
@@ -45,12 +47,7 @@ public class Ex2 {
         // ****** Add your code here ******
         //
         // ********************************
-        ArrayList<EdgeData> e = new ArrayList<>();
-        e.sort(new Comparator<EdgeData>() {
-            @Override
-            public int compare(EdgeData o1, EdgeData o2) {
-                return 0;
-            }
-        });
+
+        ;
     }
 }
