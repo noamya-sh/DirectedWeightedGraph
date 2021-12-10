@@ -1,7 +1,7 @@
-import api.*;
-
-import java.util.ArrayList;
-import java.util.Comparator;
+import api.DirectedWeightedGraph;
+import api.DirectedWeightedGraphAlgorithms;
+import api.GraphAlgo;
+import api.window;
 
 /**
  * This class is the main class for Ex2 - your implementation will be tested using this class.
@@ -15,8 +15,7 @@ public class Ex2 {
     public static DirectedWeightedGraph getGrapg(String json_file) {
         DirectedWeightedGraphAlgorithms da = new GraphAlgo();
         da.load(json_file);
-        DirectedWeightedGraph ans = da.getGraph();
-        return ans;
+        return da.getGraph();
     }
     /**
      * This static function will be used to test your implementation

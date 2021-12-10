@@ -1,7 +1,20 @@
 package api;
-
+/**This class implement GeoLocation Interface.
+ * the construcor of location can create new Location from String, for load Graph from Json file.**/
 public class Location implements GeoLocation {
-    public double x,y,z;
+    private double x,y,z;
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public void setZ(double z) {
+        this.z = z;
+    }
 
     public Location(){
         this.x=0;

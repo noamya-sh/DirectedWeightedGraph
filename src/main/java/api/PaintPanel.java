@@ -1,113 +1,43 @@
 package api;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.*;
 import java.util.List;
-
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 
-public class PaintPanel extends JPanel implements MouseInputListener {
-    public String con = null;
+public class PaintPanel extends JPanel {
     GraphAlgo dg;
     HashMap<Integer,Point2D> l;
     int center= -1;
     int w=(int) Toolkit.getDefaultToolkit().getScreenSize().getWidth() , h = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
-    public String path;
     private List<NodeData> dEdges;
 
     public PaintPanel(String s) {
         super();
-        this.setBackground(new Color(20,50,50));
         this.l = new HashMap<>();
         this.dg = new GraphAlgo();
-        this.path=s;
-        //this.h=height;this.w=width;
         dg.load(s);
-        Iterator<NodeData> it = dg.getGraph().nodeIter();
-        while (it.hasNext()){
-            NodeData n = it.next();
-            l.put(n.getKey(),new Point2D.Double(n.getLocation().x(),n.getLocation().y()));
-        }
-//        LeftPanel leftPanel = new LeftPanel();
-//        leftPanel.setOpaque(false);
-//        leftPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-//        add(leftPanel,BorderLayout.WEST);
-//        setOpaque(false);
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
-
+        initPoints();
     }
-    public PaintPanel(DirectedWeightedGraphAlgorithms dg,int center){
-        super();
-        this.dg=(GraphAlgo) dg;
-        this.l=new HashMap<>();
-        Iterator<NodeData> in = dg.getGraph().nodeIter();
-        while (in.hasNext()) {
-            NodeData n = in.next();
-            l.put(n.getKey(), new Point2D.Double(n.getLocation().x(), n.getLocation().y()));
-        }
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
-        this.center=center;
-        this.setBackground(new Color(20,50,50));
-    }
-
     public PaintPanel(DirectedWeightedGraph d) {
         super();
         this.dg=new GraphAlgo();
         this.dg.init(d);
+        initPoints();
+    }
+    private void initPoints(){
         this.l=new HashMap<>();
         Iterator<NodeData> in = dg.getGraph().nodeIter();
         while (in.hasNext()) {
             NodeData n = in.next();
             l.put(n.getKey(), new Point2D.Double(n.getLocation().x(), n.getLocation().y()));
         }
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
-        this.setBackground(new Color(20,50,50));
+        this.setBackground(new Color(0,51,51));
     }
     public void setCenter(int center){
         this.dEdges = null;
         this.center = center;
-    }
-    public void initGraph(){}
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        this.repaint();
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-
     }
     private double cal(double max,double min,double val,int h){
         double diff= Math.abs(max-min);
@@ -133,49 +63,48 @@ public class PaintPanel extends JPanel implements MouseInputListener {
         for (Point2D p : l.values())
             p.setLocation(cal(maxx, minx, p.getX(), this.w), cal(maxy, miny, p.getY(), this.h));
         List<Polygon> pol2 = new ArrayList<>();
-        HashMap<String,EdgeData> copy = new HashMap<>(dg.graph.EdgeHash);
+        HashMap<String,EdgeData> copy = new HashMap<>(((Graph) (dg.getGraph())).getEdgeHash());
         if (dEdges != null) {
-            Iterator ed = dEdges.iterator();
-            NodeData src = (NodeData) ed.next();
+            Iterator<NodeData> ed = dEdges.iterator();
+            NodeData src = ed.next();
             while (ed.hasNext()) {
-                NodeData dest = (NodeData) ed.next();
+                NodeData dest = ed.next();
                 copy.remove(src.getKey() + "_" + dest.getKey());
                 src = dest;
             }
         }
 
         List<Polygon> pol = new ArrayList<>();
-            for (EdgeData e : copy.values()) {
-                int x1 = (int) l.get(e.getSrc()).getX();
-                int y1 = (int) l.get(e.getSrc()).getY();
-                int x2 = (int) l.get(e.getDest()).getX();
-                int y2 = (int) l.get(e.getDest()).getY();
-                g.setColor(new Color(255, 177, 102));
-                String w = String.format("%.2f", e.getWeight());
-                g.setFont(new Font("Times New Roman", Font.PLAIN, 10));
-                if (x2 > x1)
-                    g.drawString(w,(int)((x1+x2)/2) + 5,(int)((y1+y2)/2) + 5);
-                else
-                    g.drawString(w,(int)((x1+x2)/2) - 10,(int)((y1+y2)/2) -5);
-                Color c = new Color(153, 204, 255);
-                pol.add(drawArrowLine(g2d,x1, y1, x2, y2,10,5,c,2));
-            }
+        for (EdgeData e : copy.values()) {
+            int x1 = (int) l.get(e.getSrc()).getX();
+            int y1 = (int) l.get(e.getSrc()).getY();
+            int x2 = (int) l.get(e.getDest()).getX();
+            int y2 = (int) l.get(e.getDest()).getY();
+            g.setColor(new Color(102, 102, 255));
+            String w = String.format("%.2f", e.getWeight());
+            g.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 10));
+            if (x2 > x1)
+                g.drawString(w,((x1+x2)/2) + 5,((y1+y2)/2) + 5);
+            else
+                g.drawString(w,((x1+x2)/2) - 10,((y1+y2)/2) -5);
+            Color c = new Color(153, 204, 255);
+            pol.add(drawArrowLine(g2d,x1, y1, x2, y2,10,5,c,2));
+        }
         for (Polygon p :pol){
             g.setColor(new Color(102,0,51));
             g.fillPolygon(p);
         }
         if (dEdges != null) {
-            Iterator ed = dEdges.iterator();
-            NodeData src = (NodeData) ed.next();
+            Iterator<NodeData> ed = dEdges.iterator();
+            NodeData src = ed.next();
             while (ed.hasNext()) {
-                NodeData dest = (NodeData) ed.next();
+                NodeData dest = ed.next();
                 int x1 = (int) l.get(src.getKey()).getX();
                 int y1 = (int) l.get(src.getKey()).getY();
                 int x2 = (int) l.get(dest.getKey()).getX();
                 int y2 = (int) l.get(dest.getKey()).getY();
                 Color c = new Color(204, 150, 0);
                 g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                //g2d.drawLine(x1, y1, x2, y2);
                 pol2.add(drawArrowLine(g2d,x1, y1, x2, y2,14,9, c,3));
                 src = dest;
             }
@@ -184,41 +113,31 @@ public class PaintPanel extends JPanel implements MouseInputListener {
             g.setColor(new Color(76,153,0));
             g.fillPolygon(p);
         }
-            for (var e : l.entrySet()) {
-                if (e.getKey() != center) {
-                    g.setColor(new Color(102,0,0));
-                    //e.getValue().setLocation(cal(maxx,minx,e.getValue().getX(),this.w),cal(maxy,miny,e.getValue().getY(),this.h));
-                    g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
-                    g.setColor(new Color(255, 255, 255));
-                    g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 11));
-                    g.drawString("" + e.getKey(), (int) e.getValue().getX() - 6, (int) e.getValue().getY() + 5);
-                } else if (e.getKey() == center) {
-                    g.setColor(new Color(0, 153, 76));
-                    g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
-                    g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 20));
-                    g.drawString("Center", (int) e.getValue().getX() - 6, (int) e.getValue().getY() + 26);
-                    g.setColor(new Color(0, 0, 0));
-                    g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 12));
-                    g.drawString("" + e.getKey(), (int) e.getValue().getX() - 6, (int) e.getValue().getY() + 5);
-                }
-                //g.drawString(Integer.toString(l.get() ),(int)p.getX(),(int)p.getY());
+        for (var e : l.entrySet()) {
+            if (e.getKey() != center) {
+                g.setColor(new Color(102,0,0));
+
+                g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
+                g.setColor(new Color(255, 255, 255));
+                g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 11));
+                g.drawString("" + e.getKey(), (int) e.getValue().getX() - 4, (int) e.getValue().getY() + 5);
+            } else {
+                g.setColor(new Color(204, 150, 0));
+                g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
+                g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 20));
+                g.drawString("Center", (int) e.getValue().getX() - 6, (int) e.getValue().getY() - 35);
+                g.setColor(new Color(0, 0, 0));
+                g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 12));
+                g.drawString("" + e.getKey(), (int) e.getValue().getX() - 4, (int) e.getValue().getY() + 5);
             }
-
-            if (con != null) {
-                g.setColor(Color.WHITE);
-                g.setFont(new Font("Ink Free", Font.BOLD, 40));
-                g.drawString(con, getWidth() / 2 - 100, getHeight() / 2 - 500);
-            }
-
-
-//        }
         }
+    }
 
     private Polygon drawArrowLine(Graphics g, int x1, int y1, int x2, int y2, int width, int height, Color c, int s) {
         int dx = x2 - x1, dy = y2 - y1;
-        double D = Math.sqrt(dx*dx + dy*dy);
-        double xm = D - width, xn = xm, ym = height, yn = -height, x;
-        double sin = dy / D, cos = dx / D;
+        double dis = Math.sqrt(dx*dx + dy*dy);
+        double xm = dis - width, xn = xm, ym = height, yn = -height, x;
+        double sin = dy / dis, cos = dx / dis;
 
         x = xm*cos - ym*sin + x1;
         ym = xm*sin + ym*cos + y1;
@@ -228,18 +147,16 @@ public class PaintPanel extends JPanel implements MouseInputListener {
         yn = xn*sin + yn*cos + y1;
         xn = x;
 
-
-        x2 = (int) ((xm+xn)/2); y2 = (int) ((ym+yn)/2);
+        x2 = (int) (xm+xn)/2; y2 = (int) (ym+yn)/2;
         dx = x2 - x1;
         dy = y2 - y1;
-        D = Math.sqrt(dx*dx + dy*dy);
-        xm = D - width; xn = xm; ym = height; yn = -height;
-        sin = dy / D; cos = dx / D;
+        dis = Math.sqrt(dx*dx + dy*dy);
+        xm = dis - width; xn = xm; ym = height; yn = -height;
+        sin = dy / dis; cos = dx / dis;
 
         x = xm*cos - ym*sin + x1;
         ym = xm*sin + ym*cos + y1;
         xm = x;
-
         x = xn*cos - yn*sin + x1;
         yn = xn*sin + yn*cos + y1;
         xn = x;

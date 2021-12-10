@@ -5,15 +5,21 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+/**This class implement Dijkstra's algorithm for assignment.
+ * https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
+ * **/
 public class Dijkstra {
-    Graph graph;
-    HashMap<Integer, Double> dist;
-    HashMap<Integer,NodeData> prev;
-    HashMap<Integer,NodeData> q;
+    private Graph graph;
+    private HashMap<Integer, Double> dist;
+    private HashMap<Integer,NodeData> prev;
+    private HashMap<Integer,NodeData> q;
 
     public Dijkstra(Graph g){
         this.graph=g;
     }
+    /**Init 3 HashMaps for run algorithm.
+     * for each Node initialize its distance from the vertex src to be infinityת
+     * and its previous vertex to be null.**/
     public void init(){
         HashMap<Integer,Double> dist = new HashMap<>();
         HashMap<Integer,NodeData> prev = new HashMap<>();
@@ -30,16 +36,16 @@ public class Dijkstra {
         this.prev=prev;
         this.q=q;
     }
-
+    /**@return HashMap with all distances of Nodes from src Node*/
     public HashMap<Integer, Double> getDist(int src) {
         fullDij(src);
         return dist;
     }
-
+    /**@return HashMap with all previous Nodes of each Node */
     public HashMap<Integer, NodeData> getPrev() {
         return prev;
     }
-
+    /**@return the Node with the smallest distance.**/
     private NodeData findmin(HashMap<Integer,NodeData> q){
         double min = Integer.MAX_VALUE; NodeData u =null;
         for (NodeData n: q.values())
@@ -49,6 +55,11 @@ public class Dijkstra {
             }
         return u;
     }
+    /**This function for find the shortPath from src Node to dest Node.
+     * Each time you pull out the Node with the smallest distance,
+     * and update its neighbors with the help of the Edges coming out of it.
+     * stop when reach dest Node.
+     * @return List contain every previous Nodes of dest Node.**/
     public List<NodeData> getPath(int src,int dest){
         init();
         dist.replace(src,0.0);
@@ -64,13 +75,18 @@ public class Dijkstra {
                         l.add(0,u);
                         u = prev.get(u.getKey());
                     }
-                l.add(0,graph.NodeHash.get(src));
+                l.add(0,graph.getNodeHash().get(src));
                 return l;
             }
-            refresh(u);
+            update(u);
         }
-        return null;//dist[dest];
+        return null;
     }
+    /**This function for find the shortPath from src Node to dest Node.
+     * Each time you pull out the Node with the smallest distance,
+     * and update its neighbors with the help of the Edges coming out of it.
+     * stop when reach dest Node.
+     * @return sum the distance from src Node to dest Node.**/
     public double getPathDist(int src,int dest){
         init();
         dist.replace(src,0.0);
@@ -82,19 +98,23 @@ public class Dijkstra {
             if (u.getKey() == dest){
                 return dist.get(u.getKey());
             }
-            refresh(u);
+            update(u);
         }
         return -1;
     }
+    /**The main work of Dijkstra algorithm.
+     * Out the Node with min distance and update his neighbors.**/
     private void fullDij(int src){
         init();
         dist.replace(src,0.0);
         while (!q.isEmpty()){
             NodeData u=findmin(q);
             q.remove(u.getKey());
-            refresh(u);
+            update(u);
         }
     }
+    /**For find 'center' Node we search the max result of path start from src Node.
+     * @return max distance from src Node.**/
     public double getMaxPath(int src){
         fullDij(src);
         double max=Integer.MIN_VALUE;
@@ -102,7 +122,8 @@ public class Dijkstra {
             if (d > max) max = d;
         return max;
     }
-    private void refresh(NodeData n){
+    /**This function update the distance and 'previous' of each neighbors of Node n.**/
+    private void update(NodeData n){
         Iterator<EdgeData> it = graph.edgeIter(n.getKey());
         while (it.hasNext()){
             Edge e = (Edge) it.next();

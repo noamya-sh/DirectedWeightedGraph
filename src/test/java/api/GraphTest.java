@@ -2,13 +2,13 @@ package api;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class GraphTest {
-
 
     @Test
     void getNode() {
@@ -54,8 +54,8 @@ class GraphTest {
         f.connect(1,4,45);
         f.connect(2,1,17);
         f.connect(3,0,8);
-        Assertions.assertEquals(f.EdgeHash.get("1_4"),f.getEdge(1,4));
-        Assertions.assertEquals(f.EdgeHash.get("3_0"),f.getEdge(3,0));
+        Assertions.assertEquals(f.getEdgeHash().get("1_4"),f.getEdge(1,4));
+        Assertions.assertEquals(f.getEdgeHash().get("3_0"),f.getEdge(3,0));
     }
 
     @Test
@@ -92,8 +92,8 @@ class GraphTest {
         f.connect(1,4,45);
         f.connect(2,1,17);
         f.connect(3,0,8);
-        Assertions.assertEquals(f.EdgeHash.get("1_4"),f.getEdge(1,4));//Because we got equality then the 'connect' works
-        Assertions.assertEquals(f.EdgeHash.get("3_0"),f.getEdge(3,0));
+        Assertions.assertEquals(f.getEdgeHash().get("1_4"),f.getEdge(1,4));//Because we got equality then the 'connect' works
+        Assertions.assertEquals(f.getEdgeHash().get("3_0"),f.getEdge(3,0));
     }
 
     @Test
@@ -102,16 +102,61 @@ class GraphTest {
         Iterator<NodeData> ite = g.nodeIter();
         while (ite.hasNext()){
             g.addNode(new Node(8));
+            Exception ex = assertThrows(RuntimeException.class,()->ite.hasNext());
+            assertEquals("ERROR", ex.getMessage());
         }
-        System.out.println(ite.next());
+        g.addNode(new Node(2));g.addNode(new Node(3));g.addNode(new Node(4));
+        g.connect(2,3,2);g.connect(3,4,2);
+        Iterator<NodeData> it = g.nodeIter();
+        while (it.hasNext()){
+            NodeData n = it.next();
+            if (n.getKey()==3)
+                it.remove();
+        }
+        assertEquals(0,g.edgeSize());
+        assertEquals(2,g.nodeSize());
     }
 
     @Test
     void edgeIter() {
+        Graph g=new Graph();
+        Iterator<EdgeData> ite = g.edgeIter();
+        while (ite.hasNext()){
+            g.addNode(new Node(1));
+            Exception ex = assertThrows(RuntimeException.class,()->ite.hasNext());
+            assertEquals("ERROR", ex.getMessage());
+        }
+        g.addNode(new Node(2));g.addNode(new Node(3));g.addNode(new Node(4));
+        g.connect(2,3,2);g.connect(3,4,2);
+        Iterator<EdgeData> it = g.edgeIter();
+        while (it.hasNext()){
+            EdgeData e = it.next();
+            if (e.getSrc()==3)
+                it.remove();
+        }
+        assertEquals(1,g.edgeSize());
     }
 
     @Test
     void testEdgeIter() {
+        Graph g=new Graph();
+        g.addNode(new Node(7));g.addNode(new Node(8));g.connect(7,8,2);
+        Iterator<EdgeData> ite = g.edgeIter(7);
+        g.addNode(new Node(1));
+        Throwable except = assertThrows(RuntimeException.class, () -> ite.next());
+        assertEquals("ERROR", except.getMessage());
+
+
+        g.addNode(new Node(3));g.addNode(new Node(4));g.addNode(new Node(5));
+        g.connect(7,3,2);g.connect(7,4,3);g.connect(7,5,1);
+        Iterator<EdgeData> it = g.edgeIter(7);
+        while (it.hasNext()){
+            EdgeData e = it.next();
+            if (e.getDest()==4)
+                it.remove();
+        }
+        assertEquals(3,g.edgeSize());
+
     }
 
     @Test
@@ -145,12 +190,11 @@ class GraphTest {
         f.removeNode(0);
         f.removeNode(1);
         //Assertions.assertEquals(null,f.NodeHash.get(3));
-        Assertions.assertEquals(null,f.NodeHash.get(0));
-        Assertions.assertEquals(null,f.NodeHash.get(1));
-        Assertions.assertEquals(null,f.EdgeHash.get("1_4"));
-        Assertions.assertEquals(null,f.EdgeHash.get("0_2"));
-        //Assertions.assertEquals(null,f.EdgeHash.get("3_0"));
-        //Assertions.assertEquals(null,f.EdgeHash.get("2_1"));
+        assertNull(f.getNodeHash().get(0));
+        assertNull(f.getNodeHash().get(1));
+        assertNull(f.getEdgeHash().get("1_4"));
+        assertNull(f.getEdgeHash().get("0_2"));
+
     }
 
     @Test
@@ -173,9 +217,9 @@ class GraphTest {
         f.removeEdge(0,2);
         f.removeEdge(1,4);
         f.removeEdge(3,0);
-        Assertions.assertEquals(null,f.EdgeHash.get("1_4"));
-        Assertions.assertEquals(null,f.EdgeHash.get("0_2"));
-        Assertions.assertEquals(null,f.EdgeHash.get("3_0"));
+        assertNull(f.getEdgeHash().get("1_4"));
+        assertNull(f.getEdgeHash().get("0_2"));
+        assertNull(f.getEdgeHash().get("3_0"));
     }
 
     @Test
@@ -218,10 +262,10 @@ class GraphTest {
         f.connect(2,1,17);
         f.connect(3,0,8);
         f.connect(0,2,7);
-        Assertions.assertEquals(4,f.edgeSize());
+        assertEquals(4,f.edgeSize());
         f.removeNode(1);
         f.removeEdge(3,0);
-        Assertions.assertEquals(2,f.edgeSize());
+        assertEquals(1,f.edgeSize());
 
 
     }

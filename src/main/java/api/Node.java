@@ -1,11 +1,9 @@
 package api;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Node implements NodeData {
-    private Location pos;
+    private GeoLocation pos;
     private int id;
     private double Weight;
     private String info;
@@ -13,23 +11,14 @@ public class Node implements NodeData {
     private HashMap<Integer,EdgeData> edges;
     private HashMap<Integer,Integer> neighbors;
 
-    public Node(){
-        this.pos = new Location();
-        this.id =0;
-        this.edges=new HashMap<>();
-        this.neighbors=new HashMap<>();
-//        this.Weight=0;
-//        this.info="";
-//        this.Tag=0;
-    }
     public Node(int id){
         this.pos = new Location();
         this.id =id;
         this.edges=new HashMap<>();
         this.neighbors=new HashMap<>();
-//        this.Weight=0;
-//        this.info="";
-//        this.Tag=0;
+        this.Weight=0;
+        this.info="";
+        this.Tag=0;
     }
 
     /**Copy constructor
@@ -42,7 +31,6 @@ public class Node implements NodeData {
         this.Tag=n.getTag();
         this.edges=new HashMap<>();
         this.neighbors =new HashMap<>(((Node) n).getNeighbors());
-        //not copy boolean connect flag
     }
 
     public Node(int id, Location l) {
@@ -50,16 +38,14 @@ public class Node implements NodeData {
         this.id=id;
         this.edges=new HashMap<>();
         this.neighbors=new HashMap<>();
-//        this.Weight=0;
-//        this.info="";
-//        this.Tag=0;
+        this.Weight=0;
+        this.info="";
+        this.Tag=0;
     }
 
     @Override
     public String toString() {
-        return "{pos:" + pos +
-                ", id:" + id +
-                '}';
+        return "{pos:" + pos + ", id:" + id + '}';
     }
 
     @Override
@@ -74,9 +60,7 @@ public class Node implements NodeData {
 
     @Override
     public void setLocation(GeoLocation p) {
-        this.pos.x=p.x();
-        this.pos.y=p.y();
-        this.pos.z=p.z();
+        this.pos=p;
     }
 
     @Override

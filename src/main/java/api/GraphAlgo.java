@@ -1,16 +1,15 @@
 package api;
-//import json;
+
 import com.google.gson.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
-    Graph graph;
+    private Graph graph;
 
     public GraphAlgo() {
         this.graph = new Graph();
@@ -33,10 +32,11 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
 
     @Override
     public DirectedWeightedGraph copy() {
-        Graph DA = new Graph(graph);
-        return DA;
+        return new Graph(graph);
     }
-
+    /**BFS algorithm for check if this graph connected.
+     * @return Hashmap contain boolean variable for each Node that
+     * declares whether can to reach it.**/
     private HashMap<Integer,Boolean> bfs(Graph g){
         HashMap<Integer,Boolean> test = new HashMap<>();
         Iterator<NodeData> it = g.nodeIter();
@@ -44,44 +44,47 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
         int firstID = test.keySet().stream().findFirst().get();
         test.replace(firstID,true);
         Queue<NodeData> q = new LinkedList<>();
-        q.add(g.NodeHash.get(firstID));
+        q.add(g.getNodeHash().get(firstID));
         while (!q.isEmpty()){
             Node n = (Node)q.poll();
             Iterator<EdgeData> i = g.edgeIter(n.getKey());
             while (i.hasNext()){
                 EdgeData e = i.next();
-                if (test.get(e.getDest())==true)
+                if (test.get(e.getDest()))
                     continue;
                 test.replace(e.getDest(),true);
-                q.add(g.NodeHash.get(e.getDest()));
+                q.add(g.getNodeHash().get(e.getDest()));
             }
         }
         return test;
     }
     @Override
     public boolean isConnected() {
+        /*perform BFS searches on source graph and on reverse graph*/
         HashMap<Integer,Boolean> d = bfs(graph);
-        for (Boolean b:d.values()) if (b==false) return false;
+        for (Boolean b:d.values()) if (!b) return false;
         //create transfom of this graph, invert each edge..
         Graph copy = new Graph();
-        for (NodeData n : graph.NodeHash.values()) copy.NodeHash.put(n.getKey(),new Node(n.getKey()));
-        for (EdgeData e : graph.EdgeHash.values()){
+        for (NodeData n : graph.getNodeHash().values()) copy.getNodeHash().put(n.getKey(),new Node(n.getKey()));
+        for (EdgeData e : graph.getEdgeHash().values()){
             int dest = e.getSrc(), src = e.getDest();
-            ((Node) copy.NodeHash.get(src)).getEdges().put(dest,new Edge(src,dest,e.getWeight()));
+            ((Node) copy.getNodeHash().get(src)).getEdges().put(dest,new Edge(src,dest,e.getWeight()));
         }
         HashMap<Integer,Boolean> r = bfs(copy);
-        for (Boolean b:r.values()) if (b==false) return false;
+        for (Boolean b:r.values()) if (!b) return false;
         return true;
     }
 
     @Override
     public double shortestPathDist(int src, int dest) {
+        /*perform Dijkstra algorithm*/
         Dijkstra d = new Dijkstra(this.graph);
         return d.getPathDist(src,dest);
     }
 
     @Override
     public List<NodeData> shortestPath(int src, int dest) {
+        /*perform Dijkstra algorithm*/
         Dijkstra d = new Dijkstra(this.graph);
         return d.getPath(src,dest);
     }
@@ -89,10 +92,12 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
     public NodeData center() {
         if(!this.isConnected())
             return null;
+        /*for each Node do Dijkstra algorithm to find the max distance from its.
+         * The Node with the minimal of max distance,is the center Node.*/
         double min=Integer.MAX_VALUE;
         NodeData ans= null;
         Dijkstra d = new Dijkstra(this.graph);
-        for (NodeData n : this.graph.NodeHash.values()){
+        for (NodeData n : this.graph.getNodeHash().values()){
             double max = d.getMaxPath(n.getKey());
             if (max < min){
                 min = max;
@@ -110,6 +115,10 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
         List<NodeData> temp = new ArrayList<>(cities);
         NodeData p = temp.remove(0);
         ans.add(p);
+        /*Greedy algorithm -
+         * 1. Start with Node,
+         * 2. while temp is not empty: find the node closest to it and add the Nodes' path to ans.
+         * the search by Dijkstra algorithm.*/
         while (temp.size()>=1){
             int id = p.getKey();
             Dijkstra d = new Dijkstra(this.graph);
@@ -138,37 +147,34 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
 
     @Override
     public boolean save(String file) {
+        /*Build Json pattern as input exemples (G1/G2/G3.json) in src/main/java/ */
         GsonBuilder gsonBuildr = new GsonBuilder();
-        JsonSerializer<Graph> serializer = new JsonSerializer<Graph>() {
-            @Override
-            public JsonElement serialize(Graph d, Type type, JsonSerializationContext jsonSerializationContext) {
-                JsonArray Edges = new JsonArray();
-                Iterator<EdgeData> ite = graph.edgeIter();
-                while (ite.hasNext()){
-                    EdgeData e = ite.next();
-                    JsonObject j = new JsonObject();
-                    j.addProperty("src",e.getSrc());
-                    j.addProperty("w",e.getWeight());
-                    j.addProperty("dest",e.getDest());
-                    Edges.add(j);
-                }
-                JsonArray Nodes = new JsonArray();
-                Iterator<NodeData> itn = graph.nodeIter();
-                while (itn.hasNext()){
-                    NodeData n = itn.next();
-                    JsonObject j = new JsonObject();
-                    j.addProperty("pos",n.getLocation().toString());
-                    j.addProperty("id",n.getKey());
-                    Nodes.add(j);
-                }
-                JsonObject json = new JsonObject();
-                json.add("Edges",Edges);
-                json.add("Nodes",Nodes);
-                return json;
+        JsonSerializer<Graph> serializer = (d, type, jsonSerializationContext) -> {
+            JsonArray Edges = new JsonArray();
+            Iterator<EdgeData> ite = graph.edgeIter();
+            while (ite.hasNext()){
+                EdgeData e = ite.next();
+                JsonObject j = new JsonObject();
+                j.addProperty("src",e.getSrc());
+                j.addProperty("w",e.getWeight());
+                j.addProperty("dest",e.getDest());
+                Edges.add(j);
             }
+            JsonArray Nodes = new JsonArray();
+            Iterator<NodeData> itn = graph.nodeIter();
+            while (itn.hasNext()){
+                NodeData n = itn.next();
+                JsonObject j = new JsonObject();
+                j.addProperty("pos",n.getLocation().toString());
+                j.addProperty("id",n.getKey());
+                Nodes.add(j);
+            }
+            JsonObject json = new JsonObject();
+            json.add("Edges",Edges);
+            json.add("Nodes",Nodes);
+            return json;
         };
         gsonBuildr.registerTypeAdapter(Graph.class,serializer);
-//        System.out.println(jsonString);
         try {
             FileWriter fw = new FileWriter(file);
             fw.write(gsonBuildr.create().toJson(this.graph));
@@ -182,27 +188,25 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
 
     @Override
     public boolean load(String file) {
+        /*Load Json files as input exemples (G1/G2/G3.json) in src/main/java/ */
         try {
             GsonBuilder gsonBuilder = new GsonBuilder();
-            JsonDeserializer<Graph> deserializer = new JsonDeserializer<Graph>() {
-                @Override
-                public Graph deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                    Graph d = new Graph();
-                    JsonObject jsonObject= json.getAsJsonObject();
-                    JsonArray n = jsonObject.getAsJsonArray("Nodes");
-                    for (int i = 0; i < n.size(); i++) {
-                        JsonObject t = n.get(i).getAsJsonObject();
-                        Location l = new Location(t.get("pos").getAsString());
-                        Node node = new Node(t.get("id").getAsInt(),l);
-                        d.addNode(node);
-                    }
-                    JsonArray e = jsonObject.getAsJsonArray("Edges");
-                    for (int i = 0; i < e.size(); i++) {
-                        JsonObject t = e.get(i).getAsJsonObject();
-                        d.connect(t.get("src").getAsInt(),t.get("dest").getAsInt(),t.get("w").getAsDouble());
-                    }
-                    return d;
+            JsonDeserializer<Graph> deserializer = (json, type, jsonDeserializationContext) -> {
+                Graph d = new Graph();
+                JsonObject jsonObject= json.getAsJsonObject();
+                JsonArray n = jsonObject.getAsJsonArray("Nodes");
+                for (int i = 0; i < n.size(); i++) {
+                    JsonObject t = n.get(i).getAsJsonObject();
+                    Location l = new Location(t.get("pos").getAsString());
+                    Node node = new Node(t.get("id").getAsInt(),l);
+                    d.addNode(node);
                 }
+                JsonArray e = jsonObject.getAsJsonArray("Edges");
+                for (int i = 0; i < e.size(); i++) {
+                    JsonObject t = e.get(i).getAsJsonObject();
+                    d.connect(t.get("src").getAsInt(),t.get("dest").getAsInt(),t.get("w").getAsDouble());
+                }
+                return d;
             };
             gsonBuilder.registerTypeAdapter(Graph.class,deserializer);
             Gson gson = gsonBuilder.create();
@@ -210,46 +214,11 @@ public class GraphAlgo implements DirectedWeightedGraphAlgorithms {
             Graph DWG;
             DWG = gson.fromJson(fr, Graph.class);
             this.graph = DWG;
-//            System.out.println(DWG);
             return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return false;
     }
-
-
-    public static void main(String[] args) {
-        GraphAlgo d = new GraphAlgo();
-//        Edge e = new Edge(3, 5, 10);
-        Node n5 = new Node(0);
-        Node n4 = new Node(4);
-        Node n3 = new Node(3);
-        Node n2 = new Node(2);
-        Node n1 = new Node(1);
-        DirectedWeightedGraph g = d.getGraph();
-        g.addNode(n1);
-        g.addNode(n2);
-        g.addNode(n3);
-        //g.addNode(n4);
-        g.addNode(n5);
-        g.connect(0, 2, 50);
-        g.connect(1, 2, 10);
-        g.connect(3, 1, 30);
-//        g.connect(2, 0, 30);
-        g.connect(2,3,70);
-
-//        d.load("output.json");
-        System.out.println(d.isConnected());
-//        Boolean b = d.load("src/G1.json");
-//        System.out.println(b);
-//        Iterator it = d.getGraph().edgeIter();
-//        while (it.hasNext()) {
-//            Edge h = (Edge) it.next();
-            //System.out.println(h);
-            //it.remove();
-//            System.out.println(d.center());
-
-        }
-    }
+}
 
