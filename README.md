@@ -28,14 +28,17 @@ We also implemented algorithms for loading a graph from a json file and saving a
 ### GUI
 We built a graphical system using `java swing` that allows the display of directed weighted graphs.<br>
 The graphical interface can be activated using 2 options:
-1. download `Ex2.jar` file from here, open `cmd` in directory of Ex2.jar and run the command:<br>
-`java -jar Ex2.jar <json file path>` <br>
+1. download `Ex2.jar` file from [here](https://github.com/eitansh28/DirectedWeightedGraph/blob/main/src/main/java/Ex2.jar), open `cmd` in directory of Ex2.jar and run the command:<br>
+```
+java -jar Ex2.jar <json file path>
+```
+<br>
 2. clone all repsitory and run the 'runGUI' function in the 'Ex2' class with input of json file path.<br>
 
 On the top left there menu that allow you to load and save graphs, add and delete nodes and edges as well as the option to execute the algorithms on the given graph. 
 In some functions the user will have to enter the data he selects and then clicking on the designated button will execute the requested algorithm.
 
-#### Performence-
+#### Performence
 Graph with 1000 nodes, 20000 edges: Running the 'center' on a graph took 8.5 seconds,  'isConnected' test 141 ms.<br>
 Graph with  10000 nodes 200000 edges: 'isConnected' 753 ms, and 'shorsestpath' test took 156 ms, 'center' - timeout.<br>
 Graph with 100,000 nodes 1000000 edges: 'isConnected' took 37 sec and 'shortestpath' took one minute and 33 seconds, 'center' - timeout.<br>
