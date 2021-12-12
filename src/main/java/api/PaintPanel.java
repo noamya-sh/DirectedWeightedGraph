@@ -42,7 +42,7 @@ public class PaintPanel extends JPanel {
     private double cal(double max,double min,double val,int h){
         double diff= Math.abs(max-min);
         //return (h/diff)*val;//*0.5;
-        return (((val-min)/diff)*h)*0.7+0.1*h;//+(0.1*h);
+        return (((val-min)/diff)*h)*0.6+0.2*h;//+(0.1*h);
     }
     @Override
     protected void paintComponent(Graphics g) {
@@ -76,6 +76,7 @@ public class PaintPanel extends JPanel {
 
         List<Polygon> pol = new ArrayList<>();
         for (EdgeData e : copy.values()) {
+            System.out.println(e);
             int x1 = (int) l.get(e.getSrc()).getX();
             int y1 = (int) l.get(e.getSrc()).getY();
             int x2 = (int) l.get(e.getDest()).getX();
@@ -117,13 +118,13 @@ public class PaintPanel extends JPanel {
             if (e.getKey() != center) {
                 g.setColor(new Color(102,0,0));
 
-                g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
+                g.fillOval((int) e.getValue().getX() - 10, (int) e.getValue().getY() - 10, 20, 20);
                 g.setColor(new Color(255, 255, 255));
                 g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 11));
-                g.drawString("" + e.getKey(), (int) e.getValue().getX() - 4, (int) e.getValue().getY() + 5);
+                g.drawString("" + e.getKey(), (int) e.getValue().getX() - 5, (int) e.getValue().getY() + 5);
             } else {
                 g.setColor(new Color(204, 150, 0));
-                g.fillOval((int) e.getValue().getX() - 9, (int) e.getValue().getY() - 9, 18, 18);
+                g.fillOval((int) e.getValue().getX() - 10, (int) e.getValue().getY() - 10, 20, 20);
                 g.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 20));
                 g.drawString("Center", (int) e.getValue().getX() - 6, (int) e.getValue().getY() - 35);
                 g.setColor(new Color(0, 0, 0));
@@ -132,7 +133,8 @@ public class PaintPanel extends JPanel {
             }
         }
     }
-
+    /**Function to create an arrow whose head touches the end of the Node.
+     * @return head of arrow polygon **/
     private Polygon drawArrowLine(Graphics g, int x1, int y1, int x2, int y2, int width, int height, Color c, int s) {
         int dx = x2 - x1, dy = y2 - y1;
         double dis = Math.sqrt(dx*dx + dy*dy);

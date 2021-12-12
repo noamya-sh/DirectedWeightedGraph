@@ -50,8 +50,11 @@ class GraphAlgoTest {
 //        g.init(f);
 //        g.load("src/test/1000Nodes.json");
 //        assertTrue(g.isConnected());
-        g.load("200000Nodes.json");
+        g.load("50Nodes.json");
+        List<NodeData>l= new LinkedList<>();
         assertTrue(g.isConnected());
+        l.add(g.getGraph().getNode(0));l.add(g.getGraph().getNode(44));l.add(g.getGraph().getNode(38));
+        System.out.println(g.tsp(l));
     }
 
     @Test
