@@ -1,9 +1,6 @@
 package api;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * This class implement Dijkstra's algorithm for assignment.
@@ -13,7 +10,7 @@ public class Dijkstra {
     private Graph graph;
     private HashMap<Integer, Double> dist;
     private HashMap<Integer, NodeData> prev;
-    private HashMap<Integer, NodeData> q;
+    private PriorityQueue<NodeData> queue;
 
     public Dijkstra(Graph g) {
         this.graph = g;
@@ -27,18 +24,27 @@ public class Dijkstra {
     public void init() {
         HashMap<Integer, Double> dist = new HashMap<>();
         HashMap<Integer, NodeData> prev = new HashMap<>();
-        HashMap<Integer, NodeData> q = new HashMap<>();
+        Comparator<NodeData> comparator = new Comparator<NodeData>() {
+            @Override
+            public int compare(NodeData o1, NodeData o2) {
+                if (dist.get(o1.getKey()) > dist.get(o2.getKey()))
+                    return 1;
+                if (dist.get(o1.getKey()) < dist.get(o2.getKey()))
+                    return -1;
+                return 0;
+            }
+        };
+        this.queue = new PriorityQueue<>(comparator);
         Iterator<NodeData> it = this.graph.nodeIter();
         while (it.hasNext()) {
             NodeData n = it.next();
             int ind = n.getKey();
             dist.put(ind, (double) Integer.MAX_VALUE);
             prev.put(ind, null);
-            q.put(ind, n);
+
         }
         this.dist = dist;
         this.prev = prev;
-        this.q = q;
     }
 
     /**
@@ -56,19 +62,6 @@ public class Dijkstra {
         return prev;
     }
 
-    /**
-     * @return the Node with the smallest distance.
-     **/
-    private NodeData findmin(HashMap<Integer, NodeData> q) {
-        double min = Integer.MAX_VALUE;
-        NodeData u = null;
-        for (NodeData n : q.values())
-            if (dist.get(n.getKey()) < min) {
-                min = dist.get(n.getKey());
-                u = n;
-            }
-        return u;
-    }
 
     /**
      * This function for find the shortPath from src Node to dest Node.
@@ -81,20 +74,20 @@ public class Dijkstra {
     public List<NodeData> getPath(int src, int dest) {
         init();
         dist.replace(src, 0.0);
-        while (!q.isEmpty()) {
-            NodeData u = findmin(q);
-            if (u == null)
+        queue.add(graph.getNode(src));
+        while (!queue.isEmpty()) {
+            NodeData u = queue.remove();
+            if (dist.get(u.getKey()) == Integer.MAX_VALUE)
                 return null;
-            q.remove(u.getKey());
             if (u.getKey() == dest) {
-                List<NodeData> l = new LinkedList<>();
+                List<NodeData> path = new LinkedList<>();
                 if (prev.get(u.getKey()) != null || u.getKey() == src)
                     while (prev.get(u.getKey()) != null) {
-                        l.add(0, u);
+                        path.add(0, u);
                         u = prev.get(u.getKey());
                     }
-                l.add(0, graph.getNodeHash().get(src));
-                return l;
+                path.add(0, graph.getNodeHash().get(src));
+                return path;
             }
             update(u);
         }
@@ -112,11 +105,11 @@ public class Dijkstra {
     public double getPathDist(int src, int dest) {
         init();
         dist.replace(src, 0.0);
-        while (!q.isEmpty()) {
-            NodeData u = findmin(q);
-            if (u == null)
+        queue.add(graph.getNode(src));
+        while (!queue.isEmpty()) {
+            NodeData u = queue.remove();
+            if (dist.get(u.getKey()) == Integer.MAX_VALUE)
                 return -1;
-            q.remove(u.getKey());
             if (u.getKey() == dest) {
                 return dist.get(u.getKey());
             }
@@ -132,11 +125,11 @@ public class Dijkstra {
     private void fullDij(int src) {
         init();
         dist.replace(src, 0.0);
-        while (!q.isEmpty()) {
-            NodeData u = findmin(q);
-            if (u == null)
+        queue.add(graph.getNode(src));
+        while (!queue.isEmpty()) {
+            NodeData u = queue.remove();
+            if (dist.get(u.getKey()) == Integer.MAX_VALUE)
                 return;
-            q.remove(u.getKey());
             update(u);
         }
     }
@@ -161,13 +154,13 @@ public class Dijkstra {
         Iterator<EdgeData> it = graph.edgeIter(n.getKey());
         while (it.hasNext()) {
             Edge e = (Edge) it.next();
-            if (q.containsKey(e.getDest())) {
-                double t = dist.get(n.getKey()) + e.getWeight();
-                if (t < dist.get(e.getDest())) {
-                    dist.replace(e.getDest(), t);
-                    prev.replace(e.getDest(), n);
-                }
+            double t = dist.get(n.getKey()) + e.getWeight();
+            if (t < dist.get(e.getDest())) {
+                dist.replace(e.getDest(), t);
+                prev.replace(e.getDest(), n);
+                queue.add(graph.getNode(e.getDest()));
             }
+
         }
     }
 }
