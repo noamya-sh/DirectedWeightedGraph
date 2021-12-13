@@ -28,9 +28,9 @@ We also implemented algorithms for loading a graph from a json file and saving a
 ### GUI
 We built a graphical system using `java swing` that allows the display of directed weighted graphs.<br>
 The graphical interface can be activated using 2 options:
-1. download `Ex2.jar` file from [here](https://github.com/eitansh28/DirectedWeightedGraph/blob/main/src/main/java/Ex2.jar), and json file from [here](https://github.com/eitansh28/DirectedWeightedGraph/blob/main/src/main/java/Inputexemples), open `cmd` in directory of Ex2.jar and run the command:<br>
+1. download `Ex2.jar` file from [here](https://github.com/eitansh28/DirectedWeightedGraph/blob/main/src/main/java/Ex2.jar), and json file from [here](https://github.com/eitansh28/DirectedWeightedGraph/tree/main/src/main/java/Input%20exemples), open `cmd` in directory of Ex2.jar and run the command:<br>
 ```
-java -jar Ex2.jar <json file path>
+java -jar Ex2.jar <json file name>
 ```
 <br>
 2. clone all repsitory and run the 'runGUI' function in the 'Ex2' class with input of json file path.<br>
