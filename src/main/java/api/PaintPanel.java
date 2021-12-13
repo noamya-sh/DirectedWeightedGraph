@@ -76,7 +76,6 @@ public class PaintPanel extends JPanel {
 
         List<Polygon> pol = new ArrayList<>();
         for (EdgeData e : copy.values()) {
-            System.out.println(e);
             int x1 = (int) l.get(e.getSrc()).getX();
             int y1 = (int) l.get(e.getSrc()).getY();
             int x2 = (int) l.get(e.getDest()).getX();
