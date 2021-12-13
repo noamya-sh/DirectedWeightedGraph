@@ -17,7 +17,7 @@ public class Dijkstra {
     }
 
     /**
-     * Init 3 HashMaps for run algorithm.
+     * Init 2 HashMaps and priority queue for run algorithm.
      * for each Node initialize its distance from the vertex src to be infinity.
      * and its previous vertex to be null.
      **/
