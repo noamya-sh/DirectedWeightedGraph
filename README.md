@@ -45,6 +45,6 @@ In some functions the user will have to enter the data he selects and then click
 
 #### Performence
 Graph with 1000 nodes, 20000 edges: Running the 'center' on a graph took 8.5 seconds,  'isConnected' test 141 ms.<br>
-Graph with  10000 nodes 200000 edges: 'isConnected' 753 ms, and 'shorsestpath' test took 156 ms, 'center' - 9 minute, 21 sec.<br>
+Graph with  10000 nodes 100000 edges: 'isConnected' 753 ms, and 'shorsestpath' test took 156 ms, 'center' - 9 minute, 21 sec.<br>
 Graph with 100,000 nodes 1000000 edges: 'isConnected' took 37 sec and 'shortestpath' took one minute and 33 seconds, 'center' - timeout.<br>
 We were unable to create a 1000000 graph due to a heap error.
